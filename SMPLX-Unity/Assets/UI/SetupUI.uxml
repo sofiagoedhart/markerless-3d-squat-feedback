@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/UI/SetupUI.uss" />
+
+    <ui:VisualElement name="hud" class="hud">
+
+        <ui:VisualElement name="choices" class="card choices">
+            <ui:Label text="SQUAT DEPTH" class="card-label" />
+            <ui:VisualElement name="target-chips" class="chips" />
+            <ui:VisualElement class="rule" />
+            <ui:Label name="rep-label" text="Number of reps" class="card-label" />
+            <ui:VisualElement name="rep-stepper" class="stepper">
+                <ui:Button name="rep-minus" text="−" class="step-btn" />
+                <ui:Label name="rep-count" text="8" class="step-num" />
+                <ui:Button name="rep-plus" text="+" class="step-btn" />
+            </ui:VisualElement>
+            <ui:Label name="rep-fixed" text="1" class="rep-fixed hidden" />
+            <ui:Button name="start-button" text="Start set" class="start-btn" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="guide-card" class="card guide hidden">
+            <ui:Label text="Before you start" class="guide-title" />
+            <ui:Label text="Take up this position when you step onto the green circles." class="guide-sub" />
+            <ui:VisualElement class="guide-row">
+                <ui:VisualElement class="guide-panel">
+                    <ui:Label text="SETUP" class="card-label" />
+                    <ui:VisualElement name="guide-front" class="guide-fig guide-fig-front" />
+                </ui:VisualElement>
+                <ui:VisualElement class="guide-panel guide-panel-side">
+                    <ui:Label name="guide-side-h" text="AT THE BOTTOM" class="card-label" />
+                    <ui:VisualElement name="guide-side" class="guide-fig guide-fig-side" />
+                    <ui:Label name="guide-depth-note" text="" class="guide-note" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="guide-buttons">
+                <ui:Button name="guide-back" text="Back" class="guide-back" />
+                <ui:Button name="guide-ready" text="I'm ready" class="start-btn guide-ready" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+
+        <ui:VisualElement name="start-card" class="card start hidden">
+            <ui:VisualElement class="start-text">
+                <ui:Label name="start-title" text="Get into position" class="start-title" />
+                <ui:Label name="start-msg" text="Place your feet on the green circles."
+                          class="start-msg" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="hold-card" class="card hold-card hidden">
+            <ui:Label text="HOLD" class="card-label hold-label" />
+            <ui:VisualElement class="hold">
+                <ui:VisualElement name="hold-fill" class="hold-fill" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:Button name="settings-button" text="Settings" class="gear" />
+
+        <ui:VisualElement name="settings-panel" class="settings hidden">
+            <ui:VisualElement class="settings-head">
+                <ui:Label text="Settings" class="settings-title" />
+                <ui:Button name="settings-close" text="Done" class="settings-close" />
+            </ui:VisualElement>
+
+            <ui:ScrollView name="settings-body" class="settings-body" mode="Vertical" horizontal-scroller-visibility="Hidden">
+
+            <ui:VisualElement class="setting">
+                <ui:VisualElement class="setting-text">
+                    <ui:Label text="Review each rep" class="setting-name" />
+                    <ui:Label text="Pause after each rep to review your movement"
+                              class="setting-help" />
+                </ui:VisualElement>
+                <ui:Toggle name="set-review-rep" class="switch" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="setting">
+                <ui:VisualElement class="setting-text">
+                    <ui:Label text="Review after the set" class="setting-name" />
+                    <ui:Label text="Complete the full set, then review all your reps together."
+                              class="setting-help" />
+                </ui:VisualElement>
+                <ui:Toggle name="set-review-set" class="switch" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="setting">
+                <ui:VisualElement class="setting-text">
+                    <ui:Label text="Show measurements" class="setting-name" />
+                    <ui:Label text="Show measurements in millimetres, degrees and seconds in your review"
+                              class="setting-help" />
+                </ui:VisualElement>
+                <ui:Toggle name="set-numbers" class="switch" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="setting">
+                <ui:VisualElement class="setting-text">
+                    <ui:Label text="Show live depth" class="setting-name" />
+                    <ui:Label text="See how close you are to your target depth while you squat." class="setting-help" />
+                </ui:VisualElement>
+                <ui:Toggle name="set-depth" class="switch" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="setting">
+                <ui:VisualElement class="setting-text">
+                    <ui:Label text="Show rep count" class="setting-name" />
+                    <ui:Label text="Show your completed reps during the set" class="setting-help" />
+                </ui:VisualElement>
+                <ui:Toggle name="set-repcount" class="switch" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="setting">
+                <ui:VisualElement class="setting-text">
+                    <ui:Label text="Show setup guide" class="setting-name" />
+                    <ui:Label text="Show foot placement, barbell and depth guidance before each repetition or set." class="setting-help" />
+                </ui:VisualElement>
+                <ui:Toggle name="set-guide" class="switch" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="setting">
+                <ui:VisualElement class="setting-text">
+                    <ui:Label text="Avatar" class="setting-name" />
+                    <ui:Label text="Choose the avatar used to show your movement."
+                              class="setting-help" />
+                </ui:VisualElement>
+                <ui:VisualElement class="chips chips-inline">
+                    <ui:Button name="set-avatar-f" text="Female" class="chip" />
+                    <ui:Button name="set-avatar-m" text="Male" class="chip" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="setting">
+                <ui:VisualElement class="setting-text">
+                    <ui:Label text="Reset set count" class="setting-name" />
+                    <ui:Label name="set-count-help" text="" class="setting-help" />
+                </ui:VisualElement>
+                <ui:Button name="set-reset-count" text="↺" class="reset-btn" />
+            </ui:VisualElement>
+
+            </ui:ScrollView>
+        </ui:VisualElement>
+
+        <ui:Label name="status" text="Getting ready..." class="status" />
+    </ui:VisualElement>
+</ui:UXML>

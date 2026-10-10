@@ -1,0 +1,265 @@
+
+.hud {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+}
+
+.hidden { display: none; }
+
+.card {
+    position: absolute;
+    background-color: rgb(252, 252, 251);
+    border-radius: 20px;
+    border-width: 1px;
+    border-color: rgba(11, 11, 11, 0.10);
+}
+
+.card-label {
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: rgb(82, 81, 78);
+    -unity-font-style: bold;
+}
+
+.rep-card {
+    left: 44px;
+    top: 44px;
+    width: 280px;
+    padding: 22px 26px 20px 26px;
+}
+
+.rep-row {
+    flex-direction: row;
+    align-items: flex-end;
+    margin-top: 4px;
+}
+
+.rep-count {
+    font-size: 92px;
+    -unity-font-style: bold;
+    color: rgb(11, 11, 11);
+    margin-right: 12px;
+}
+
+.rep-of {
+    font-size: 26px;
+    color: rgb(82, 81, 78);
+    margin-bottom: 16px;
+}
+
+.pips {
+    flex-direction: row;
+    margin-top: 16px;
+}
+
+.pip {
+    height: 6px;
+    flex-grow: 1;
+    margin-right: 6px;
+    border-radius: 3px;
+    background-color: rgb(205, 226, 251);
+}
+
+.pip--on { background-color: rgb(42, 120, 214); }
+
+.rep-card.complete .rep-count { color: rgb(12, 163, 12); }
+.rep-card.complete .pip--on   { background-color: rgb(12, 163, 12); }
+.rep-card.complete .card-label { color: rgb(0, 99, 0); }
+
+.depth-card {
+    left: 44px;
+    top: 268px;
+    width: 280px;
+    padding: 20px 24px 22px 24px;
+}
+
+.depth-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.chip {
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    padding: 5px 10px 5px 10px;
+    border-radius: 20px;
+    background-color: rgb(205, 226, 251);
+    color: rgb(24, 79, 149);
+}
+
+.depth-body {
+    flex-direction: row;
+    height: 400px;
+}
+
+.depth-track {
+    width: 48px;
+    border-radius: 14px;
+    background-color: rgb(205, 226, 251);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.depth-fill {
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    background-color: rgb(42, 120, 214);
+}
+
+.depth-band {
+    position: absolute;
+    left: 0; right: 0;
+    background-color: rgba(12, 163, 12, 0.30);
+}
+
+.depth-marker {
+    position: absolute;
+    left: 0; right: 0;
+    height: 8px;
+    border-radius: 4px;
+    background-color: rgb(11, 11, 11);
+    border-width: 3px;
+    border-color: rgb(252, 252, 251);
+}
+
+.depth-marker.in-band { background-color: rgb(12, 163, 12); }
+
+.depth-ticks--left {
+    width: 66px;
+    flex-shrink: 0;
+    margin-right: 10px;
+    -unity-text-align: middle-right;  
+}
+
+.depth-track {
+    width: 48px;
+    flex-shrink: 0;                   
+    border-radius: 14px;
+    background-color: rgb(205, 226, 251);
+    overflow: hidden;
+}
+
+.depth-ticks--right {
+    flex-grow: 1;                    
+    margin-left: 10px;
+}
+
+.tick {
+    position: absolute;
+    right: 0;                 
+    font-size: 14px;
+    color: rgb(82, 81, 78);
+}
+
+.tick-top    { top: 0; }
+.tick-bottom { bottom: 0; }
+
+.tick-target {
+    color: rgb(0, 99, 0);
+    -unity-font-style: bold;
+    translate: 0 50%;
+}
+
+.tick-you {
+    position: absolute;
+    left: 0;
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: rgb(11, 11, 11);
+    translate: 0 50%;
+}
+
+.tick-you.in-band { color: rgb(0, 99, 0); }
+
+.cue-card {
+    top: 44px;
+    right: 44px;
+    width: 520px;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 22px 28px 22px 28px;
+    border-left-width: 8px;
+    border-left-color: rgb(250, 178, 25);
+}
+
+.cue-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background-color: rgb(250, 178, 25);
+    align-items: center;
+    justify-content: center;
+    margin-right: 18px;
+    flex-shrink: 0;
+}
+
+.cue-icon__mark {
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(11, 11, 11);
+}
+
+.cue-body-block { flex-grow: 1; }
+
+.cue-title {
+    font-size: 29px;
+    -unity-font-style: bold;
+    color: rgb(11, 11, 11);
+    white-space: normal;
+}
+
+.cue-body {
+    font-size: 20px;
+    color: rgb(82, 81, 78);
+    margin-top: 6px;
+    white-space: normal;
+}
+
+.phase-strip {
+    position: absolute;
+    left: 44px;
+    bottom: 56px;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(11, 11, 11, 0.55);
+    border-radius: 20px;
+    padding: 7px 16px 7px 14px;
+}
+
+.phase {
+    font-size: 17px;
+    color: rgb(255, 255, 255);
+}
+
+.status {
+    position: absolute;
+    left: 44px;
+    bottom: 22px;
+    font-size: 14px;
+    color: rgba(11, 11, 11, 0.75);   
+}
+
+.diagnostics {
+    position: absolute;
+    right: 44px;
+    bottom: 24px;
+    font-size: 17px;
+    -unity-text-align: upper-right;
+    color: rgba(255, 255, 255, 0.8);
+    white-space: normal;
+}
+
+.countdown-card {
+    align-items: center;
+    padding: 18px 34px 20px 34px;
+    margin-top: 12px;
+}
+.countdown-num {
+    font-size: 72px; -unity-font-style: bold;
+    color: rgb(42, 120, 214);
+    margin: 2px 0 2px 0;
+}
+.countdown-sub { font-size: 16px; color: rgb(82, 81, 78); }

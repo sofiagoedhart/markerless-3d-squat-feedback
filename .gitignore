@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+# data written by the programs
+results/
+recordings/
+calib/
+calib_images/
+*.pt
+# Unity-generated folders
+SMPLX-Unity/Library/
+SMPLX-Unity/Temp/
+SMPLX-Unity/Logs/
+SMPLX-Unity/UserSettings/
+SMPLX-Unity/obj/
+SMPLX-Unity/*.csproj
+SMPLX-Unity/*.sln
+# licensed SMPL-X package and assets built from it (see README)
+SMPLX-Unity/Assets/SMPLX/

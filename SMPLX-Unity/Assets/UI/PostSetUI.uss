@@ -1,0 +1,55 @@
+
+.stamp { font-size: 13px; color: rgb(170, 179, 189); -unity-text-align: upper-right;
+         white-space: normal; flex-shrink: 0; margin-left: 16px; }
+
+.plot-row { flex-direction: row; align-items: stretch; }
+.y-axis { width: 100px; flex-shrink: 0; justify-content: space-between; padding-right: 8px; }
+.y-title { font-size: 13px; color: rgb(170, 179, 189); white-space: normal; -unity-text-align: middle-right; }
+.y-end { font-size: 13px; color: rgb(170, 179, 189); white-space: normal; -unity-text-align: middle-right; }
+.y-ticks { width: 42px; flex-shrink: 0; justify-content: space-between;
+           margin-top: -8px; margin-bottom: -8px; padding-right: 8px; }
+.y-tick { font-size: 12px; color: rgb(170, 179, 189); -unity-text-align: middle-right; }
+.plot { flex-grow: 1; min-width: 0; height: 240px;
+        border-width: 1px; border-color: rgba(255, 255, 255, 0.06); border-radius: 6px; }
+.x-ticks { flex-direction: row; margin-left: 142px; margin-top: 5px; }
+.x-tick { flex-grow: 1; flex-basis: 0; min-width: 0; font-size: 13px; color: rgb(170, 179, 189);
+          -unity-text-align: upper-center; }
+.x-title { margin-left: 142px; margin-top: 2px; font-size: 13px; color: rgb(170, 179, 189);
+           -unity-text-align: upper-center; }
+
+.dot { position: absolute; width: 13px; height: 13px; border-radius: 7px;
+       margin-left: -7px; margin-top: -7px;
+       background-color: rgb(127, 180, 242);
+       border-width: 2px; border-color: rgb(24, 32, 42); }
+.dot-good { background-color: rgb(111, 210, 127); }
+.dot-warn { background-color: rgb(242, 182, 50); }
+.dot-bad  { background-color: rgb(240, 122, 104); }
+.dot-none { background-color: rgb(93, 103, 114); }
+.dot-plain { background-color: rgb(127, 180, 242); }
+.lg-dot.dot-good { background-color: rgb(111, 210, 127); }
+.lg-dot.dot-warn { background-color: rgb(242, 182, 50); }
+.lg-dot.dot-bad  { background-color: rgb(240, 122, 104); }
+.chart-band { position: absolute; left: 0; right: 0; background-color: rgba(60, 190, 90, 0.20); }
+
+.time-row { flex-direction: row; align-items: flex-start; margin-top: 14px; }
+.ptable-block { width: 210px; flex-shrink: 0; margin-right: 24px; }
+.table-h { font-size: 13px; color: rgb(170, 179, 189); margin-bottom: 6px; }
+.ptable { border-width: 1px; border-color: rgba(255, 255, 255, 0.08); border-radius: 8px; }
+.ptr { flex-direction: row; }
+.ptr-head { background-color: rgba(255, 255, 255, 0.06); }
+.ptr-alt { background-color: rgba(255, 255, 255, 0.03); }
+.ptd { flex-grow: 1; flex-basis: 0; padding: 4px 10px 4px 10px; font-size: 14px;
+       color: rgb(238, 241, 244); -unity-text-align: middle-center; }
+.ptd-h { font-size: 12px; -unity-font-style: bold; color: rgb(170, 179, 189); }
+.tempo-side { flex-grow: 1; min-width: 0; margin-top: 0; }
+
+.repnav { flex-direction: row; flex-wrap: wrap; margin-top: 12px; }
+.repnav-top { margin-top: 0; flex-shrink: 0; flex-wrap: nowrap; }
+.repdot { width: 42px; height: 38px; margin: 0 8px 8px 0; padding: 0; border-radius: 10px;
+          border-width: 1px; border-color: rgba(255, 255, 255, 0.22);
+          background-color: rgb(29, 38, 49); color: rgb(238, 241, 244);
+          font-size: 15px; -unity-font-style: bold; -unity-text-align: middle-center; }
+.repnav-top .repdot { margin: 0 0 0 6px; }
+.repdot:hover { background-color: rgb(106, 167, 239); color: rgb(11, 22, 34); border-color: rgb(106, 167, 239); }
+.repdot-fault { border-color: rgb(240, 122, 104); color: rgb(240, 122, 104); }
+.repdot:active { background-color: rgb(90, 150, 220); color: rgb(11, 22, 34); }

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/PostRepUI.uss" />
+    <Style src="project://database/Assets/UI/PostSetUI.uss" />
+
+    <ui:VisualElement name="sheet" class="sheet">
+
+        <ui:VisualElement class="top">
+            <ui:VisualElement class="top-text">
+                <ui:Label text="SET SUMMARY" class="eyebrow" />
+                <ui:Label name="set-title" text="Set complete" class="h1" />
+                <ui:Label name="set-sub" text="" class="h1-sub" />
+            </ui:VisualElement>
+            <ui:Label name="set-stamp" text="" class="stamp" />
+            <ui:Button name="btn-done" text="Next set" class="btn btn-primary" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="verdict-card" class="verdict">
+            <ui:VisualElement class="verdict-text">
+                <ui:Label name="verdict-title" text="" class="verdict-title" />
+                <ui:Label name="verdict-body" text="" class="verdict-body" />
+            </ui:VisualElement>
+            <ui:VisualElement name="rep-nav-top" class="repnav repnav-top" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="review">
+
+            <ui:ScrollView class="mlist">
+                <ui:Button name="mc-depth" class="mcard">
+                    <ui:VisualElement class="mc-top"><ui:Label text="Depth" class="mc-name" /><ui:Label name="depth-pill" text="" class="pill" /></ui:VisualElement>
+                    <ui:Label name="depth-state" text="" class="state mc-ov" />
+                </ui:Button>
+                <ui:Button name="mc-valgus" class="mcard">
+                    <ui:VisualElement class="mc-top"><ui:Label text="Knee tracking" class="mc-name" /><ui:Label name="valgus-pill" text="" class="pill" /></ui:VisualElement>
+                    <ui:Label name="valgus-state" text="" class="state mc-ov" />
+                </ui:Button>
+                <ui:Button name="mc-sym" class="mcard">
+                    <ui:VisualElement class="mc-top"><ui:Label text="Knee symmetry" class="mc-name" /><ui:Label name="sym-pill" text="" class="pill" /></ui:VisualElement>
+                    <ui:Label name="sym-state" text="" class="state mc-ov" />
+                </ui:Button>
+                <ui:Button name="mc-sh" class="mcard">
+                    <ui:VisualElement class="mc-top"><ui:Label text="Shoulder alignment" class="mc-name" /><ui:Label name="sh-pill" text="" class="pill" /></ui:VisualElement>
+                    <ui:Label name="sh-state" text="" class="state mc-ov" />
+                </ui:Button>
+                <ui:Button name="mc-tempo" class="mcard">
+                    <ui:VisualElement class="mc-top"><ui:Label text="Timing" class="mc-name" /><ui:Label name="tempo-pill" text="" class="pill" /></ui:VisualElement>
+                    <ui:Label name="tempo-state" text="" class="state mc-ov" />
+                </ui:Button>
+                <ui:Button name="mc-reps" class="mcard">
+                    <ui:VisualElement class="mc-top"><ui:Label text="Repetitions" class="mc-name" /><ui:Label name="reps-pill" text="" class="pill" /></ui:VisualElement>
+                    <ui:Label name="rep-nav-note" text="" class="state mc-ov" />
+                </ui:Button>
+            </ui:ScrollView>
+
+            <ui:ScrollView class="detail">
+
+                <ui:VisualElement name="pane-depth" class="pane">
+                    <ui:VisualElement class="pane-head"><ui:Label text="Depth" class="pane-h" /><ui:Label name="depth-scope" text="" class="pane-scope scope" /></ui:VisualElement>
+                    <ui:VisualElement class="big-row"><ui:Label name="depth-big" text="" class="big" /><ui:Label name="depth-num" text="" class="big-cap num" /></ui:VisualElement>
+                    <ui:VisualElement class="legend">
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-band" /><ui:Label text="Target range" class="lg-t" /></ui:VisualElement>
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-dot dot-good" /><ui:Label text="On target" class="lg-t" /></ui:VisualElement>
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-dot dot-bad" /><ui:Label text="Not deep enough" class="lg-t" /></ui:VisualElement>
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-dot dot-warn" /><ui:Label text="Deeper than target" class="lg-t" /></ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="chart-block">
+                        <ui:Label text="Hip position relative to knees (mm)" class="chart-h" />
+                        <ui:VisualElement class="plot-row">
+                            <ui:VisualElement class="y-axis">
+                                <ui:Label text="Shallower" class="y-end" />
+                                <ui:Label text="Knee level" class="y-title" />
+                                <ui:Label text="Deeper" class="y-end" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="depth-yticks" class="y-ticks" />
+                            <ui:VisualElement name="depth-plot" class="plot" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="depth-xticks" class="x-ticks" />
+                        <ui:Label text="Repetition" class="x-title" />
+                    </ui:VisualElement>
+                    <ui:Foldout text="WHAT THIS MEASURES" value="false" class="more"><ui:Label class="info-p" text="Shows hip height relative to knee height near the bottom of each rep. The shaded band marks your selected depth range." /></ui:Foldout>
+                    <ui:Foldout text="WHAT THIS TELLS YOU" value="false" class="more"><ui:Label class="info-p" text="See how consistently you reached your selected depth and which reps were shallower or deeper." /></ui:Foldout>
+                </ui:VisualElement>
+
+                <ui:VisualElement name="pane-valgus" class="pane">
+                    <ui:VisualElement class="pane-head"><ui:Label text="Knee tracking" class="pane-h" /><ui:Label text="" class="pane-scope scope" /></ui:VisualElement>
+                    <ui:VisualElement class="big-row"><ui:Label name="valgus-big" text="" class="big num" /><ui:Label name="valgus-num" text="" class="big-cap num" /></ui:VisualElement>
+                    <ui:VisualElement class="legend">
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-dash" /><ui:Label name="lg-thresh" text="Inward-movement limit" class="lg-t" /></ui:VisualElement>
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-dot dot-bad" /><ui:Label text="Sustained inward movement" class="lg-t" /></ui:VisualElement>
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-dot dot-warn" /><ui:Label text="Brief inward movement" class="lg-t" /></ui:VisualElement>
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-dot dot-good" /><ui:Label text="No sustained inward movement" class="lg-t" /></ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="chart-block">
+                        <ui:Label text="Knee separation relative to standing (mm)" class="chart-h" />
+                        <ui:VisualElement class="plot-row">
+                            <ui:VisualElement class="y-axis">
+                                <ui:Label text="Wider" class="y-end" />
+                                <ui:Label text="Standing reference" class="y-title" />
+                                <ui:Label text="Narrower" class="y-end" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="valgus-yticks" class="y-ticks" />
+                            <ui:VisualElement name="valgus-plot" class="plot" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="valgus-xticks" class="x-ticks" />
+                        <ui:Label text="Repetition" class="x-title" />
+                    </ui:VisualElement>
+                    <ui:Foldout text="WHAT THIS MEASURES" value="false" class="more"><ui:Label class="info-p" text="Measures the reduction in knee separation during each repetition relative to the standing reference. The dashed line indicates the limit used to identify excessive inward movement." /></ui:Foldout>
+                    <ui:Foldout text="WHAT THIS TELLS YOU" value="false" class="more"><ui:Label class="info-p" text="See whether inward knee movement occurred in isolated reps or repeatedly across the set. Flagged reps show sustained movement beyond the limit." /></ui:Foldout>
+                </ui:VisualElement>
+
+                <ui:VisualElement name="pane-sym" class="pane">
+                    <ui:VisualElement class="pane-head"><ui:Label text="Knee symmetry" class="pane-h" /><ui:VisualElement name="sym-icon" class="icon" /></ui:VisualElement>
+                    <ui:VisualElement class="big-row"><ui:Label name="sym-big" text="" class="big num" /><ui:Label name="sym-num" text="" class="big-cap" /></ui:VisualElement>
+                    <ui:Label text="Values closer to zero indicate more similar knee flexion on both sides" class="note" />
+                    <ui:VisualElement class="chart-block">
+                        <ui:Label text="Knee flexion difference (°)" class="chart-h" />
+                        <ui:VisualElement class="plot-row">
+                            <ui:VisualElement class="y-axis">
+                                <ui:Label text="Right more flexed" class="y-end" />
+                                <ui:Label text="Equal flexion" class="y-title" />
+                                <ui:Label text="Left more flexed" class="y-end" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="sym-yticks" class="y-ticks" />
+                            <ui:VisualElement name="sym-plot" class="plot" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="sym-xticks" class="x-ticks" />
+                        <ui:Label text="Repetition" class="x-title" />
+                    </ui:VisualElement>
+                    <ui:Foldout text="WHAT THIS MEASURES" value="false" class="more"><ui:Label class="info-p" text="Compares left and right knee flexion, using the average difference between the two knee angles for each repetition." /></ui:Foldout>
+                    <ui:Foldout text="WHAT THIS TELLS YOU" value="false" class="more"><ui:Label class="info-p" text="See whether the same knee tended to bend more across the set or whether the difference changed between reps." /></ui:Foldout>
+                </ui:VisualElement>
+
+                <ui:VisualElement name="pane-sh" class="pane">
+                    <ui:VisualElement class="pane-head"><ui:Label text="Shoulder alignment" class="pane-h" /><ui:VisualElement name="sh-icon" class="icon" /></ui:VisualElement>
+                    <ui:VisualElement class="big-row"><ui:Label name="sh-big" text="" class="big num" /><ui:Label name="sh-num" text="" class="big-cap" /></ui:VisualElement>
+                    <ui:VisualElement class="legend">
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-band" /><ui:Label text="Within the standing band" class="lg-t" /></ui:VisualElement>
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-dot dot-good" /><ui:Label text="Inside the band" class="lg-t" /></ui:VisualElement>
+                        <ui:VisualElement class="lg-item"><ui:VisualElement class="lg-dot dot-warn" /><ui:Label text="Outside the band" class="lg-t" /></ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="chart-block">
+                        <ui:Label text="Shoulder tilt relative to standing (°)" class="chart-h" />
+                        <ui:VisualElement class="plot-row">
+                            <ui:VisualElement class="y-axis">
+                                <ui:Label text="Right higher" class="y-end" />
+                                <ui:Label text="Standing reference" class="y-title" />
+                                <ui:Label text="Left higher" class="y-end" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="sh-yticks" class="y-ticks" />
+                            <ui:VisualElement name="sh-plot" class="plot" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="sh-xticks" class="x-ticks" />
+                        <ui:Label text="Repetition" class="x-title" />
+                    </ui:VisualElement>
+                    <ui:Foldout text="WHAT THIS MEASURES" value="false" class="more"><ui:Label class="info-p" text="Measures how far the shoulder line moves from your own standing shoulder line, recorded while you hold your stance before the set, averaged over each repetition. Zero means the shoulders are carried as they were at setup." /></ui:Foldout>
+                    <ui:Foldout text="WHAT THIS TELLS YOU" value="false" class="more"><ui:Label class="info-p" text="See whether your shoulders tended to tilt further towards the same side across the set or whether the direction changed between reps." /></ui:Foldout>
+                </ui:VisualElement>
+
+                <ui:VisualElement name="pane-tempo" class="pane">
+                    <ui:VisualElement class="pane-head"><ui:Label text="Timing" class="pane-h" /><ui:Label text="" class="pane-scope scope" /></ui:VisualElement>
+                                        <ui:VisualElement class="time-row">
+                        <ui:VisualElement class="ptable-block">
+                            <ui:Label text="Bottom pause per rep" class="table-h" />
+                            <ui:VisualElement name="pause-table" class="ptable" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="tempo tempo-side">
+                            <ui:Label text="Average time" class="table-h" />
+                            <ui:VisualElement class="tempo-row"><ui:Label text="Down" class="tempo-lbl" /><ui:VisualElement class="bar"><ui:VisualElement name="tempo-down" class="bar-fill" /></ui:VisualElement><ui:Label name="tempo-down-val" text="" class="tempo-val num" /></ui:VisualElement>
+                            <ui:VisualElement class="tempo-row"><ui:Label text="Up" class="tempo-lbl" /><ui:VisualElement class="bar"><ui:VisualElement name="tempo-up" class="bar-fill" /></ui:VisualElement><ui:Label name="tempo-up-val" text="" class="tempo-val num" /></ui:VisualElement>
+                            <ui:VisualElement name="tempo-axis" class="ticks" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:Foldout text="WHAT THIS MEASURES" value="false" class="more"><ui:Label class="info-p" text="Measures the average duration of the descent and ascent phases across the set, together with the bottom-pause duration of each repetition." /></ui:Foldout>
+                    <ui:Foldout text="WHAT THIS TELLS YOU" value="false" class="more"><ui:Label class="info-p" text="Compare your average lowering and rising times with your intended pace, and check how consistently you paused at the bottom." /></ui:Foldout>
+                </ui:VisualElement>
+
+                <ui:VisualElement name="pane-reps" class="pane">
+                    <ui:VisualElement class="pane-head"><ui:Label text="Repetitions" class="pane-h" /><ui:Label text="" class="pane-scope scope" /></ui:VisualElement>
+                    <ui:Label text="Select a repetition to view its full breakdown. Use Back to set to return here." class="note" />
+                    <ui:VisualElement name="rep-nav" class="repnav" />
+                    <ui:Foldout text="WHAT THIS SHOWS" value="false" class="more"><ui:Label class="info-p" text="Provides the detailed post-repetition summary for any repetition in the set, including depth, knee tracking, knee symmetry and shoulder alignment." /></ui:Foldout>
+                    <ui:Foldout text="WHAT THIS TELLS YOU" value="false" class="more"><ui:Label class="info-p" text="The set-level charts show how each metric changed across repetitions. Opening an individual repetition provides the corresponding movement trace and detailed assessment." /></ui:Foldout>
+                </ui:VisualElement>
+
+            </ui:ScrollView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

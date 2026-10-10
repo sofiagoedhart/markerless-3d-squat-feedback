@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  --bg: #0b0e12; --screen: #121820; --panel: #18202a; --card: #1d2631; --card-on: #22344a;
+  --line: rgba(255, 255, 255, 0.08); --line-strong: rgba(255, 255, 255, 0.22);
+  --ink: #eef1f4; --ink-2: #c8cfd6; --ink-3: #9aa5b1;
+  --accent: #6aa7ef; --accent-ink: #0b1622; --band: rgba(60, 190, 90, 0.20);
+  --good: #6fd27f; --good-bg: rgba(60, 190, 90, 0.14);
+  --warn: #f2c25b; --warn-mark: #f2b632; --warn-bg: rgba(242, 182, 50, 0.13);
+  --fault: #f07a68; --fault-bg: rgba(240, 122, 104, 0.14);
+  --neutral-bg: rgba(255, 255, 255, 0.06); --grid: rgba(255, 255, 255, 0.07); --series: #7fb4f2; --none: #5d6772;
+  --font: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 15px;
+       padding-inline: 16px; padding-block: 20px 40px; }
+button { font: inherit; color: inherit; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 14px; }
+.topbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--ink-3); }
+.crumbs button { background: none; border: 0; padding: 2px 4px; color: var(--accent); cursor: pointer; }
+.crumbs span.cur { color: var(--ink); font-weight: 700; padding: 2px 4px; }
+.screen { background: var(--screen); border-radius: 18px; border: 1px solid var(--line); padding: 26px 30px 24px;
+          display: grid; gap: 14px; }
+.head { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.eyebrow { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 4px; }
+h1 { font-size: 30px; line-height: 1.1; margin: 0; text-wrap: balance; }
+.sub { color: var(--ink-2); margin: 4px 0 0; }
+.btn { border: 0; border-radius: 12px; padding: 10px 18px; font-weight: 700; cursor: pointer; background: var(--neutral-bg); color: var(--ink); }
+.banner { border-radius: 14px; padding: 12px 18px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.banner b { font-size: 18px; }
+.banner span { color: var(--ink-2); }
+.banner.good { background: var(--good-bg); } .banner.good b { color: var(--good); }
+.banner.warn { background: var(--warn-bg); } .banner.warn b { color: var(--warn); }
+.banner.fault { background: var(--fault-bg); } .banner.fault b { color: var(--fault); }
+.banner.neutral { background: var(--neutral-bg); }
+.banner .grow { flex: 1 1 260px; min-width: 0; display: grid; gap: 2px; }
+.body { display: grid; grid-template-columns: minmax(250px, 0.82fr) 2fr; gap: 16px; align-items: start; }
+.cards { display: grid; gap: 7px; align-content: start; position: sticky; top: 12px; min-width: 0; }
+.mcard { text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 9px 13px;
+         cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; min-width: 0; }
+.mcard:hover { border-color: var(--line-strong); }
+.mcard[aria-pressed="true"] { background: var(--card-on); border-color: var(--accent); }
+.mcard .name { font-weight: 700; font-size: 16px; }
+.mcard .ov { color: var(--ink-2); font-size: 13.5px; grid-column: 1 / -1; }
+.pill { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+.pill.good { background: var(--good-bg); color: var(--good); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.fault { background: var(--fault-bg); color: var(--fault); }
+.pill.neutral { background: var(--neutral-bg); color: var(--ink-2); }
+.details { display: grid; gap: 16px; min-width: 0; }
+.detail { background: var(--panel); border-radius: 16px; padding: 18px 22px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.dhead { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+.dhead h2 { margin: 0; font-size: 21px; }
+.scope { color: var(--ink-3); font-size: 13px; }
+.big { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.big strong { font-family: var(--mono); font-size: 34px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.big span { color: var(--ink-2); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); }
+.legend i { display: inline-block; vertical-align: middle; margin-right: 6px; }
+.lg-band { width: 20px; height: 10px; border-radius: 3px; background: var(--band); }
+.lg-dash { width: 20px; border-top: 2px dashed var(--fault); }
+.lg-dot { width: 9px; height: 9px; border-radius: 50%; }
+.lg-box { width: 14px; height: 12px; border-radius: 3px; }
+.lg-range { width: 2px; height: 14px; background: var(--series); opacity: 0.5; margin-left: 4px; margin-right: 10px !important; }
+.chart { width: 100%; overflow-x: auto; }
+.chart svg { display: block; width: 100%; height: auto; min-width: 420px; }
+.chart text { fill: var(--ink-2); font-family: var(--font); font-size: 12px; }
+.chart .ttl { fill: var(--ink); font-weight: 700; font-size: 13px; }
+.note { color: var(--ink-3); font-size: 13px; margin: 0; }
+details.more { border-top: 1px solid var(--line); padding: 8px 0 0; }
+details.more summary { list-style: none; cursor: pointer; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;
+                       text-transform: uppercase; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::before { content: ""; border-left: 6px solid currentColor; border-top: 5px solid transparent;
+                               border-bottom: 5px solid transparent; transition: transform .15s; }
+details.more[open] summary::before { transform: rotate(90deg); }
+details.more p { margin: 8px 0 2px 16px; max-width: 68ch; line-height: 1.45; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.tile { text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer; display: grid; gap: 4px; }
+.tile:hover { border-color: var(--accent); }
+.tile .tn { font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.tile .tl { font-size: 13px; color: var(--ink-2); }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--screen); font-size: 13px; padding: 6px 9px; border-radius: 8px; z-index: 10; max-width: 260px; }
+footer { color: var(--ink-3); font-size: 13px; text-align: center; }
+@media (max-width: 860px) { .body { grid-template-columns: 1fr; } .cards { position: static; } h1 { font-size: 24px; } .screen { padding: 18px 16px; } }
+@media (prefers-reduced-motion: reduce) { details.more summary::before { transition: none; } }
+@media print {
+  body { background: #fff; color: #000; } .topbar, .cards, .tip { display: none; } .body { grid-template-columns: 1fr; }
+  .detail { break-inside: avoid; } details.more p { display: block; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><nav class="crumbs" id="crumbs" aria-label="Where you are"></nav>
+    <button class="btn" id="all-btn" type="button"></button></div>
+  <section class="screen" id="screen" aria-live="polite"></section>
+  <footer id="footer"></footer>
+</div>
+<div class="tip" id="tip" hidden></div>
+<script>
+const D = /*__DATA__*/null;
+const C = D.copy;
+const f = (s, o = {}) => String(s).replace(/\{(\w+)\}/g, (m, k) => (k in o ? o[k] : m));
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fin = v => typeof v === "number" && isFinite(v);
+const nums = a => a.filter(fin);
+const avg = a => { const x = nums(a); return x.length ? x.reduce((s, v) => s + v, 0) / x.length : null; };
+const fx = (v, d = 0) => fin(v) ? v.toFixed(d) : "--";
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : "";
+const flagged = r => r.faults.length > 0;
+const state = { level: "session", set: 0, all: false, metric: { session: "sets", set: "depth" } };
+const DOT = { green: "var(--good)", amber: "var(--warn-mark)", red: "var(--fault)", grey: "var(--none)", plain: "var(--series)" };
+
+function niceBounds(values, extra = [], centred = false) {
+  const v = nums(values.concat(extra));
+  if (!v.length) return { min: -1, max: 1, ticks: [-1, 0, 1] };
+  let lo = Math.min(...v), hi = Math.max(...v);
+  if (centred) { const m = Math.max(Math.abs(lo), Math.abs(hi)) || 1; lo = -m; hi = m; }
+  if (hi - lo < 1e-9) { const p = Math.abs(hi) * 0.1 || 1; lo -= p; hi += p; }
+  const raw = (hi - lo) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => raw <= s) || 10 * mag;
+  lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+  if (centred) { const m = Math.max(Math.abs(lo), Math.abs(hi)); lo = -m; hi = m; }
+  const ticks = []; for (let t = lo; t <= hi + step * 1e-6 && ticks.length < 12; t += step) ticks.push(+t.toFixed(6));
+  return { min: lo, max: hi, ticks };
+}
+
+function chart(o) {
+  const W = 660, H = o.h || 250, L = 150, R = 18, T = 26, B = 46, pw = W - L - R, ph = H - T - B;
+  const X = x => L + (x - o.x.min) / (o.x.max - o.x.min) * pw;
+  const Y = y => T + (o.y.max - Math.max(o.y.min, Math.min(o.y.max, y))) / (o.y.max - o.y.min) * ph;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.title)}"><text class="ttl" x="${L}" y="14">${esc(o.title)}</text>`;
+  if (o.band && (fin(o.band[0]) || fin(o.band[1]))) {
+    const top = Y(fin(o.band[1]) ? o.band[1] : o.y.max), bot = Y(fin(o.band[0]) ? o.band[0] : o.y.min);
+    s += `<rect x="${L}" y="${top}" width="${pw}" height="${Math.max(0, bot - top)}" fill="var(--band)"/>`;
+  }
+  for (const t of o.y.ticks) s += `<line x1="${L}" x2="${L + pw}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)"/><text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end">${t}</text>`;
+  if (fin(o.zero) && o.zero >= o.y.min && o.zero <= o.y.max) s += `<line x1="${L}" x2="${L + pw}" y1="${Y(o.zero)}" y2="${Y(o.zero)}" stroke="var(--line-strong)" stroke-width="1.5"/>`;
+  if (fin(o.thr)) s += `<line x1="${L}" x2="${L + pw}" y1="${Y(o.thr)}" y2="${Y(o.thr)}" stroke="var(--fault)" stroke-width="2" stroke-dasharray="6 5"/>`;
+  if (o.words) {
+    const midY = fin(o.zero) ? Y(o.zero) : T + ph / 2;
+    if (midY > T + 22) s += `<text x="8" y="${T + 10}">${esc(o.words[0])}</text>`;
+    s += `<text x="8" y="${midY + 4}">${esc(o.words[1])}</text>`;
+    if (midY < T + ph - 18) s += `<text x="8" y="${T + ph}">${esc(o.words[3])}</text>`;
+  }
+  for (const t of o.x.ticks) s += `<text x="${X(t.v)}" y="${T + ph + 18}" text-anchor="middle">${esc(t.l)}</text>`;
+  s += `<text x="${L + pw / 2}" y="${H - 6}" text-anchor="middle">${esc(o.x.title)}</text>`;
+  for (const sr of o.series) {
+    if (sr.kind === "bars") {
+      const bw = Math.min(46, pw / Math.max(1, sr.pts.length) * 0.42);
+      sr.pts.forEach(p => { if (!fin(p.y)) return; const y0 = Y(Math.max(0, o.y.min)), y1 = Y(p.y), bx = X(p.x) - bw / 2;
+        if (fin(p.total)) {
+          const yt = Y(p.total);
+          s += `<rect x="${bx}" y="${yt}" width="${bw}" height="${y0 - yt}" rx="4" fill="var(--neutral-bg)" stroke="var(--line-strong)" stroke-width="1.5" data-tip="${esc(p.tip)}"/>`;
+          if (p.y > 0) s += `<rect x="${bx + 3}" y="${y1 + 3}" width="${bw - 6}" height="${Math.max(0, y0 - y1 - 6)}" rx="3" fill="${p.c}" data-tip="${esc(p.tip)}"/>`;
+          s += `<text x="${X(p.x)}" y="${yt - 6}" text-anchor="middle" style="fill:var(--ink);font-weight:700">${p.y}/${p.total}</text>`;
+        } else s += `<rect x="${bx}" y="${Math.min(y0, y1)}" width="${bw}" height="${Math.abs(y0 - y1)}" rx="4" fill="${p.c}" data-tip="${esc(p.tip)}"/>`; });
+    } else {
+      const ok = sr.pts.filter(p => fin(p.y));
+      if (sr.join && ok.length > 1) s += `<path d="${ok.map((p, i) => `${i ? "L" : "M"}${X(p.x)},${Y(p.y)}`).join("")}" fill="none" stroke="${sr.stroke || "var(--series)"}" stroke-width="2" opacity="0.5"/>`;
+      ok.forEach(p => {
+        if (fin(p.lo)) s += `<line x1="${X(p.x)}" x2="${X(p.x)}" y1="${Y(p.lo)}" y2="${Y(p.hi)}" stroke="var(--series)" stroke-width="2" opacity="0.5"/>`;
+        s += `<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="7" fill="${p.c || "var(--series)"}" stroke="var(--panel)" stroke-width="2"/><circle cx="${X(p.x)}" cy="${Y(p.y)}" r="16" fill="transparent" data-tip="${esc(p.tip)}"/>`;
+      });
+    }
+  }
+  return `<div class="chart">${s}</svg></div>`;
+}
+const repAxis = n => ({ min: 0.5, max: n + 0.5, ticks: Array.from({ length: n }, (_, i) => ({ v: i + 1, l: i + 1 })), title: C.AX_X_TITLE });
+const setAxis = sets => ({ min: 0.5, max: sets.length + 0.5, ticks: sets.map((s, i) => ({ v: i + 1, l: f(C.CRUMB_SET, { idx: s.idx }) })), title: C.AX_X_SET });
+const ex = (key, level) => (C.EXPLAIN[key] || {})[level] || ["", ""];
+
+function setMetrics(s) {
+  const reps = s.reps, n = reps.length;
+  const on = reps.filter(r => r.depth_state === "green").length;
+  const sust = reps.filter(r => r.valgus_state === "sustained"), brief = reps.filter(r => r.valgus_state === "brief");
+  const lim = avg(reps.map(r => r.valgus_limit));
+  const even = reps.map(r => r.sh_even).find(fin);
+  const fl = reps.filter(flagged).length;
+  const dVals = reps.map(r => r.depth), band = reps.length ? reps[0].band : [null, null];
+  return {
+    depth: { name: C.NAME_DEPTH, ov: on === n ? C.DEPTH_ALL : f(C.DEPTH_ON_TARGET, { k: on, n }),
+      pill: on === n ? ["good", C.PILL_ON_TARGET] : [reps.some(r => r.depth_state === "red") ? "fault" : "warn", f(C.PILL_OFF_TARGET, { k: n - on })],
+      big: `${on}/${n}`, bigCap: f(C.DEPTH_NUM, { v: fx(avg(dVals)) }), legend: C.LEGEND_DEPTH,
+      draw: () => chart({ title: C.CHART_H_DEPTH, y: niceBounds(dVals, [0, ...band.filter(fin)]), x: repAxis(n), band, zero: 0, words: C.AX_DEPTH,
+        series: [{ kind: "dots", join: true, pts: reps.map((r, i) => ({ x: i + 1, y: r.depth, c: DOT[r.depth_state],
+          tip: `${f(C.REP_LABEL, { rep: i + 1 })}: ${fx(r.depth)} mm` })) }] }), key: "depth" },
+    valgus: { name: C.NAME_VALGUS, ov: sust.length ? f(C.VALGUS_SOME, { k: sust.length, n }) : C.VALGUS_NONE,
+      pill: sust.length ? ["fault", sust.length <= 2 ? sust.map(r => f(C.REP_LABEL, { rep: reps.indexOf(r) + 1 })).join(", ") : f(C.PILL_FLAGGED, { k: sust.length })] : brief.length ? ["warn", C.PILL_BRIEF] : ["good", C.PILL_ON_TARGET],
+      big: (() => { const m = avg(reps.map(r => fin(r.valgus_dev) ? -r.valgus_dev : null)); return fin(m) ? `${m > 0 ? "+" : ""}${fx(m)} mm` : "--"; })(), bigCap: C.VALGUS_BIG_CAP,
+      legend: C.LEGEND_VALGUS.map(([k, w]) => [k, k === "dash" ? f(C.VALGUS_LEGEND, { v: fx(Math.abs(lim)) }) : w]),
+      draw: () => chart({ title: C.CHART_H_VALGUS, y: niceBounds(reps.map(r => fin(r.valgus_dev) ? -r.valgus_dev : null), [lim, 0], true), x: repAxis(n), zero: 0, thr: lim, words: C.AX_VALGUS,
+        series: [{ kind: "dots", join: true, pts: reps.map((r, i) => ({ x: i + 1, y: fin(r.valgus_dev) ? -r.valgus_dev : null,
+          c: r.valgus_state === "sustained" ? DOT.red : r.valgus_state === "brief" ? DOT.amber : DOT.green,
+          tip: `${f(C.REP_LABEL, { rep: i + 1 })}: ${-r.valgus_dev > 0 ? "+" : ""}${fx(-r.valgus_dev)} mm · ${Math.round((r.valgus_frac || 0) * 100)}%` })) }] }), key: "valgus" },
+    symmetry: { name: C.NAME_SYMMETRY, ov: f(C.SYM_HEADING, { v: fx(avg(reps.map(r => r.sym_abs)), 1) }), pill: ["neutral", C.PILL_REPORTED],
+      big: `${fx(avg(reps.map(r => r.sym_abs)), 1)}°`, bigCap: C.BIG_SYM_SET, legend: C.LEGEND_SYMMETRY,
+      draw: () => chart({ title: C.CHART_H_SYMMETRY, y: niceBounds(reps.map(r => r.sym), [], true), x: repAxis(n), zero: 0, words: C.AX_SYMMETRY,
+        series: [{ kind: "dots", join: true, pts: reps.map((r, i) => ({ x: i + 1, y: r.sym, c: DOT.plain, tip: `${f(C.REP_LABEL, { rep: i + 1 })}: ${fx(r.sym, 1)}°` })) }] }), key: "symmetry" },
+    shoulders: { name: C.NAME_SHOULDERS, ov: f(C.SH_HEADING, { v: fx(avg(reps.map(r => r.sh_abs)), 1) }), pill: ["neutral", C.PILL_REPORTED],
+      big: `${fx(avg(reps.map(r => r.sh_abs)), 1)}°`, bigCap: C.BIG_SH_SET, note: s.referenced ? "" : C.SH_NO_BASELINE,
+      legend: C.LEGEND_SHOULDERS.filter(([k]) => fin(even) || k !== "band").map(([k, w]) => [k, f(w, { v: fx(even) })]),
+      draw: () => chart({ title: C.CHART_H_SHOULDERS, y: niceBounds(reps.map(r => r.sh), fin(even) ? [-even, even] : [], true), x: repAxis(n),
+        band: fin(even) ? [-even, even] : null, zero: 0, words: C.AX_SHOULDERS,
+        series: [{ kind: "dots", join: true, pts: reps.map((r, i) => ({ x: i + 1, y: r.sh, c: r.sh_state === "inside" ? DOT.green : r.sh_state === "outside" ? DOT.amber : DOT.grey,
+          tip: `${f(C.REP_LABEL, { rep: i + 1 })}: ${fx(r.sh_abs, 1)}°` })) }] }), key: "shoulders" },
+    timing: { name: C.NAME_TIMING, ov: f(C.TEMPO_STATE, { down: fx(avg(reps.map(r => r.down)), 1), up: fx(avg(reps.map(r => r.up)), 1) }), pill: ["neutral", C.PILL_REPORTED],
+      big: `${fx(avg(reps.map(r => r.down)), 1)} s · ${fx(avg(reps.map(r => r.up)), 1)} s`, bigCap: C.BIG_TEMPO_SET, legend: [],
+      draw: () => chart({ title: C.PAUSE_HEADING + " (s)", h: 220, y: niceBounds(reps.map(r => r.pause), [0]), x: repAxis(n),
+        series: [{ kind: "bars", pts: reps.map((r, i) => ({ x: i + 1, y: r.pause, c: "var(--series)", tip: `${f(C.REP_LABEL, { rep: i + 1 })}: ${fx(r.pause, 2)} s` })) }] }), key: "timing" },
+  };
+}
+
+function sessionMetrics() {
+  const S = D.sets, all = S.flatMap(s => s.reps), x = setAxis(S);
+  const onT = S.map(s => s.reps.filter(r => r.depth_state === "green").length);
+  const sust = S.map(s => s.reps.filter(r => r.valgus_state === "sustained").length);
+  const rng = a => { const v = nums(a); return v.length ? { lo: Math.min(...v), hi: Math.max(...v) } : {}; };
+  const totOn = onT.reduce((a, b) => a + b, 0), totS = sust.reduce((a, b) => a + b, 0);
+  return {
+    sets: { name: C.NAME_SETS, ov: f(C.SESSION_SUB_LINE, { sets: S.length, reps: all.length, date: "" }).replace(/ · $/, ""), pill: ["neutral", `${S.length}`],
+      draw: () => `<p class="note">${esc(C.OPEN_SET_HINT)}</p><div class="tiles">${S.map((s, i) => { const fl = s.reps.filter(flagged).length;
+        return `<button class="tile" data-open-set="${i}"><span class="tn">${esc(s.label || f(C.CRUMB_SET, { idx: s.idx }))}<span class="pill ${fl ? "fault" : "good"}">${esc(fl ? f(C.PILL_FLAGGED, { k: fl }) : C.PILL_ALL_CLEAR)}</span></span>
+          <span class="tl">${esc(f(C.SET_ROW, { target: cap(s.target), n: s.reps.length }))}</span><span class="tl">${esc(f(C.SET_ROW_DEPTH, { k: onT[i], n: s.reps.length }))}</span></button>`; }).join("")}</div>`, key: "sets" },
+    depth: { name: C.NAME_DEPTH, ov: f(C.DEPTH_ON_TARGET, { k: totOn, n: all.length }), pill: totOn === all.length ? ["good", C.PILL_ON_TARGET] : ["warn", f(C.PILL_OFF_TARGET, { k: all.length - totOn })],
+      big: `${totOn}/${all.length}`, bigCap: C.SESSION_DEPTH_BIG, legend: [["track", C.LEGEND_TOTAL_REPS], ["fill:good", C.PILL_ON_TARGET]],
+      draw: () => chart({ title: C.CHART_H_DEPTH_SESSION, y: niceBounds(S.map(s => s.reps.length), [0, 1.2 * Math.max(...S.map(s => s.reps.length))]), x,
+        series: [{ kind: "bars", pts: onT.map((v, i) => ({ x: i + 1, y: v, total: S[i].reps.length, c: "var(--good)", tip: `${cap(S[i].target)}: ${v}/${S[i].reps.length}` })) }] }), key: "depth" },
+    valgus: { name: C.NAME_VALGUS, ov: totS ? f(C.VALGUS_SOME, { k: totS, n: all.length }) : C.VALGUS_NONE, pill: totS ? ["fault", f(C.PILL_FLAGGED, { k: totS })] : ["good", C.PILL_ON_TARGET],
+      big: `${totS}`, bigCap: C.SESSION_VALGUS_BIG, legend: [["track", C.LEGEND_TOTAL_REPS], ["fill:fault", C.LEGEND_VALGUS[1][1]]],
+      draw: () => chart({ title: C.CHART_H_VALGUS_SESSION, y: niceBounds(S.map(s => s.reps.length), [0, 1.2 * Math.max(...S.map(s => s.reps.length))]), x,
+        series: [{ kind: "bars", pts: sust.map((v, i) => ({ x: i + 1, y: v, total: S[i].reps.length, c: "var(--fault)", tip: `${v}/${S[i].reps.length}` })) }] }), key: "valgus" },
+    symmetry: { name: C.NAME_SYMMETRY, ov: f(C.SYM_HEADING, { v: fx(avg(all.map(r => r.sym_abs)), 1) }), pill: ["neutral", C.PILL_REPORTED], big: `${fx(avg(all.map(r => r.sym_abs)), 1)}°`, bigCap: C.BIG_SYM_SESSION, legend: [["dot:plain", C.LEGEND_SET_AVG], ["range", C.LEGEND_RANGE]],
+      draw: () => chart({ title: C.CHART_H_SYMMETRY_SESSION, y: niceBounds(all.map(r => r.sym), [], true), x, zero: 0, words: C.AX_SYMMETRY,
+        series: [{ kind: "dots", pts: S.map((s, i) => ({ x: i + 1, y: avg(s.reps.map(r => r.sym)), ...rng(s.reps.map(r => r.sym)), tip: `${fx(avg(s.reps.map(r => r.sym)), 1)}°` })) }] }), key: "symmetry" },
+    shoulders: { name: C.NAME_SHOULDERS, ov: f(C.SH_HEADING, { v: fx(avg(all.map(r => r.sh_abs)), 1) }), pill: ["neutral", C.PILL_REPORTED], big: `${fx(avg(all.map(r => r.sh_abs)), 1)}°`, bigCap: C.BIG_SH_SESSION, legend: [["dot:plain", C.LEGEND_SET_AVG], ["range", C.LEGEND_RANGE]],
+      draw: () => chart({ title: C.CHART_H_SHOULDERS_SESSION, y: niceBounds(all.map(r => r.sh), [-5, 5], true), x, zero: 0, words: C.AX_SHOULDERS,
+        series: [{ kind: "dots", pts: S.map((s, i) => ({ x: i + 1, y: avg(s.reps.map(r => r.sh)), ...rng(s.reps.map(r => r.sh)), tip: `${fx(avg(s.reps.map(r => r.sh_abs)), 1)}°` })) }] }), key: "shoulders" },
+    timing: { name: C.NAME_TIMING, ov: f(C.TEMPO_STATE, { down: fx(avg(all.map(r => r.down)), 1), up: fx(avg(all.map(r => r.up)), 1) }), pill: ["neutral", C.PILL_REPORTED],
+      big: `${fx(avg(all.map(r => r.down)), 1)} s · ${fx(avg(all.map(r => r.up)), 1)} s`, bigCap: C.BIG_TEMPO_SESSION, legend: [["dot:plain", C.TEMPO_DOWN], ["dot:green", C.TEMPO_UP]],
+      draw: () => chart({ title: C.CHART_H_TIMING_SESSION, y: niceBounds(all.flatMap(r => [r.down, r.up]), [0]), x,
+        series: [{ kind: "dots", join: true, pts: S.map((s, i) => ({ x: i + 1, y: avg(s.reps.map(r => r.down)), tip: `${C.TEMPO_DOWN} ${fx(avg(s.reps.map(r => r.down)), 2)} s` })) },
+                 { kind: "dots", join: true, stroke: "var(--good)", pts: S.map((s, i) => ({ x: i + 1, y: avg(s.reps.map(r => r.up)), c: "var(--good)", tip: `${C.TEMPO_UP} ${fx(avg(s.reps.map(r => r.up)), 2)} s` })) }] }), key: "timing" },
+  };
+}
+
+function legendHTML(items) {
+  if (!C.SHOW_LEGEND || !items || !items.length) return "";
+  const sw = k => k === "band" ? `<i class="lg-band"></i>` : k === "dash" ? `<i class="lg-dash"></i>`
+    : k === "range" ? `<i class="lg-range"></i>`
+    : k === "track" ? `<i class="lg-box" style="background:var(--neutral-bg);border:1.5px solid var(--line-strong)"></i>`
+    : k.startsWith("fill:") ? `<i class="lg-box" style="background:${{ good: DOT.green, fault: DOT.red }[k.slice(5)]}"></i>`
+    : `<i class="lg-dot" style="background:${{ green: DOT.green, amber: DOT.amber, red: DOT.red, blue: DOT.plain, "dot:plain": DOT.plain, "dot:green": DOT.green }[k] || DOT.plain}"></i>`;
+  return `<div class="legend">${items.map(([k, w]) => `<span>${sw(k)}${esc(w)}</span>`).join("")}</div>`;
+}
+function detailHTML(m, level, scope) {
+  const [ms, mt] = ex(m.key, level);
+  return `<div class="detail"><div class="dhead"><h2>${esc(m.name)}</h2><span class="scope">${esc(scope)}</span></div>
+    ${m.big ? `<div class="big"><strong>${esc(m.big)}</strong><span>${esc(m.bigCap || "")}</span></div>` : ""}
+    ${legendHTML(m.legend)}${m.draw()}${m.note ? `<p class="note">${esc(m.note)}</p>` : ""}
+    ${ms ? `<details class="more"><summary>${esc(C.MEASURES_H)}</summary><p>${esc(ms)}</p></details>` : ""}
+    ${mt ? `<details class="more"><summary>${esc(C.MATTERS_H)}</summary><p>${esc(mt)}</p></details>` : ""}</div>`;
+}
+function bodyHTML(level, metrics, scope) {
+  const keys = Object.keys(metrics).filter(k => !metrics[k].hide);
+  if (!keys.includes(state.metric[level])) state.metric[level] = keys[0];
+  const sel = state.metric[level];
+  const cards = keys.map(k => { const c = metrics[k];
+    return `<button class="mcard" aria-pressed="${!state.all && k === sel}" data-metric="${k}"><span class="name">${esc(c.name)}</span>
+      <span class="pill ${c.pill[0]}">${esc(c.pill[1])}</span><span class="ov">${esc(c.ov)}</span></button>`; }).join("");
+  const shown = state.all ? keys : [sel];
+  return `<div class="body"><div class="cards">${cards}</div><div class="details">${shown.map(k => detailHTML(metrics[k], level, scope)).join("")}</div></div>`;
+}
+
+function renderSession() {
+  const S = D.sets, reps = S.reduce((a, s) => a + s.reps.length, 0), fl = S.filter(s => s.reps.some(flagged)).length;
+  const date = (D.captured || "").slice(0, 10);
+  return `<div class="head"><div><p class="eyebrow">${esc(C.SESSION_EYEBROW)}</p><h1>${esc(f(C.SESSION_TITLE, { session: D.session }))}</h1>
+      <p class="sub">${esc(f(C.SESSION_SUB_LINE, { sets: S.length, reps, date }))}</p></div></div>
+    <div class="banner ${fl ? "warn" : "good"}"><div class="grow"><b>${esc(fl ? f(C.SESSION_SOME, { k: fl, n: S.length }) : C.SESSION_CLEAN)}</b>
+      <span>${esc(fl ? C.SESSION_SOME_BODY : C.SESSION_CLEAN_BODY)}</span></div></div>
+    ${bodyHTML("session", sessionMetrics(), f(C.SCOPE_SESSION, { n: S.length }))}`;
+}
+function renderSet() {
+  const s = D.sets[state.set], n = s.reps.length, fl = s.reps.filter(flagged).length;
+  const title = s.label || f(C.SET_TITLE_NUMBERED, { idx: s.idx });
+  const sub = f(n === 1 ? C.SET_SUB_ONE : C.SET_SUBTITLE, { idx: s.idx, n, target: cap(s.target) });
+  if (!n) return `<div class="head"><div><h1>${esc(title)}</h1><p class="sub">${esc(f(C.SET_EMPTY, { sub }))}</p></div></div>`;
+  return `<div class="head"><div><p class="eyebrow">${esc(C.SET_EYEBROW)}</p><h1>${esc(title)}</h1><p class="sub">${esc(sub)}</p></div></div>
+    <div class="banner ${fl ? "warn" : "good"}"><div class="grow"><b>${esc(!fl ? C.ALL_CLEAN : fl === 1 ? f(C.ONE_FAULT, { n }) : f(C.SOME_FAULTS, { k: fl, n }))}</b>
+      <span>${esc(fl ? C.FAULTS_BODY : C.ALL_CLEAN_BODY)}</span></div></div>
+    ${bodyHTML("set", setMetrics(s), f(C.SCOPE_SET, { n }))}`;
+}
+function render() {
+  const el = document.getElementById("screen");
+  el.innerHTML = state.level === "set" ? renderSet() : renderSession();
+  const s = D.sets[state.set], crumbs = [[C.CRUMB_SESSION, "session"]];
+  if (state.level !== "session") crumbs.push([s.label || f(C.CRUMB_SET, { idx: s.idx }), "set"]);
+  document.getElementById("crumbs").innerHTML = crumbs.map(([l, lv], i) => i === crumbs.length - 1
+    ? `<span class="cur">${esc(l)}</span>` : `<button data-go="${lv}">${esc(l)}</button><span>›</span>`).join("");
+  document.getElementById("all-btn").textContent = state.all ? C.SHOW_ONE : C.SHOW_ALL;
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.id === "all-btn") { state.all = !state.all; render(); return; }
+  if (t.dataset.metric) { state.metric[state.level] = t.dataset.metric; state.all = false; render(); }
+  else if (t.dataset.openSet !== undefined) { state.set = +t.dataset.openSet; state.level = "set"; render(); scrollTo(0, 0); }
+  else if (t.dataset.go) { state.level = t.dataset.go; render(); }
+});
+const tip = document.getElementById("tip");
+document.addEventListener("pointermove", e => {
+  const el = e.target.closest && e.target.closest("[data-tip]");
+  if (!el) { tip.hidden = true; return; }
+  tip.textContent = el.dataset.tip; tip.hidden = false;
+  tip.style.left = Math.min(e.clientX + 14, innerWidth - 270) + "px"; tip.style.top = (e.clientY + 14) + "px";
+});
+document.getElementById("footer").textContent = `${f(C.FOOTER, { session: D.session })} · ${D.generated}`;
+if (D.sets.length === 1) state.level = "set";
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Python 3.13. Versions are the ones the thesis results were produced with.
+numpy==2.5.1
+opencv-python==5.0.0.93
+ultralytics==8.4.91        # YOLO11 pose; installs torch (2.13.0 was used)
+
+# Optional: figure and asset tools in tools/ and src/make_filter_figure.py
+matplotlib==3.11.0
+pillow==12.3.0
+# scipy        - tools/fit_fist_pose.py
+# reportlab    - src/make_chessboard.py
+# playwright   - tools/make_guide_screens.py (then: playwright install chromium)

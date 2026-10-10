@@ -1,0 +1,704 @@
+<title>__TITLE__</title>
+<meta name="color-scheme" content="dark">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b0e12; --sheet: #121820; --panel: #18202a; --card: #1d2631; --card-on: #22344a;
+  --ink: #eef1f4; --ink-2: #aab3bd; --ink-3: #75808c; --ink-soft: #c8cfd6; --ink-body: #d6dce2;
+  --accent: #6aa7ef; --accent-hi: #88b8f2; --trace: #7fb4f2;
+  --good: #6fd27f; --warn: #f2c25b; --warn-dot: #f2b632; --fault: #f07a68; --none: #5d6772;
+  --good-bg: rgba(60,190,90,.14); --warn-bg: rgba(242,182,50,.13); --fault-bg: rgba(240,122,104,.14);
+  --band: rgba(60,190,90,.20); --line-soft: rgba(255,255,255,.08); --line-faint: rgba(255,255,255,.06);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --gut-axis: 100px; --gut-ticks: 42px;
+}
+html, body { background: var(--bg); color: var(--ink); }
+body { font-family: var(--font); margin: 0; padding-inline: 16px; padding-block: 18px 28px; }
+* { box-sizing: border-box; }
+.wrap { max-width: 1536px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+
+.meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+        font-size: 12.5px; color: var(--ink-3); }
+.meta b { color: var(--ink-2); font-weight: 600; }
+.switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--ink-2); user-select: none; }
+.switch input { appearance: none; width: 34px; height: 20px; border-radius: 999px; background: rgba(255,255,255,.12);
+                position: relative; margin: 0; cursor: pointer; transition: background .15s; }
+.switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%;
+                       background: var(--ink); transition: transform .15s; }
+.switch input:checked { background: var(--accent); }
+.switch input:checked::after { transform: translateX(14px); background: #0b1622; }
+.switch input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.sheet { background: var(--sheet); border-radius: 18px; padding: 22px 28px 20px; min-width: 0; }
+.hidden { display: none !important; }
+.no-numbers .num { display: none !important; }
+
+.top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.top-text { flex: 1; min-width: 0; }
+.eyebrow { font-size: 11px; letter-spacing: 1.5px; color: var(--ink-2); }
+.h1 { font-size: 30px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.h1-sub { font-size: 15px; color: var(--ink-2); margin-top: 2px; }
+.stamp { font-size: 13px; color: var(--ink-2); text-align: right; white-space: pre-line; margin-left: 16px; }
+.btn { border: 0; border-radius: 12px; font: 700 16px var(--font); padding: 11px 22px; cursor: pointer; white-space: nowrap; }
+.btn-primary { background: var(--accent); color: #0b1622; }
+.btn-primary:hover { background: var(--accent-hi); }
+.btn-ghost { background: rgba(255,255,255,.06); color: var(--ink); }
+.btn-ghost:hover { background: rgba(255,255,255,.12); }
+.btn[aria-disabled="true"] { cursor: default; }
+.btn:focus-visible, .mcard:focus-visible, .repdot:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.verdict { display: flex; align-items: center; gap: 12px; background: var(--fault-bg); border-radius: 14px;
+           padding: 12px 18px; margin-bottom: 14px; }
+.verdict.ok { background: var(--good-bg); }
+.verdict.warn { background: var(--warn-bg); }
+.verdict-text { flex: 1; min-width: 0; }
+.verdict-title { font-size: 18px; font-weight: 700; color: var(--fault); }
+.verdict.ok .verdict-title { color: var(--good); }
+.verdict.warn .verdict-title { color: var(--warn); }
+.verdict-body { font-size: 15px; color: var(--ink-body); margin-top: 2px; }
+
+.review { display: flex; gap: 16px; align-items: flex-start; }
+.mlist { width: 360px; flex-shrink: 0; display: flex; flex-direction: column; gap: 7px; }
+.mcard { display: block; width: 100%; text-align: left; font-family: var(--font); cursor: pointer;
+         padding: 9px 13px 10px; background: var(--card); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; color: var(--ink); }
+.mcard:hover { border-color: rgba(255,255,255,.22); }
+.mcard.on { background: var(--card-on); border-color: var(--accent); }
+.mc-top { display: flex; align-items: center; gap: 8px; }
+.mc-name { flex: 1; font-size: 16px; font-weight: 700; }
+.mc-ov { font-size: 13px; color: #c8cfd6; margin-top: 2px; }
+.pill { font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+        background: rgba(255,255,255,.06); color: var(--ink-2); }
+.pill-good { background: var(--good-bg); color: var(--good); }
+.pill-warn { background: var(--warn-bg); color: var(--warn); }
+.pill-fault { background: var(--fault-bg); color: var(--fault); }
+
+.detail { flex: 1; min-width: 0; background: var(--panel); border-radius: 16px; padding: 16px 20px; }
+.pane-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pane-h { font-size: 21px; font-weight: 700; }
+.pane-scope { font-size: 13px; color: var(--ink-2); }
+.big-row { display: flex; align-items: flex-end; flex-wrap: wrap; margin-top: 4px; column-gap: 12px; }
+.big { font-size: 34px; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.big-cap { font-size: 14px; color: var(--ink-soft); margin-bottom: 7px; }
+.note { font-size: 14px; color: var(--ink-soft); }
+.icon { width: 96px; height: 68px; flex-shrink: 0; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; }
+.lg-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.lg-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--trace); }
+.lg-band { width: 22px; height: 10px; border-radius: 3px; background: rgba(60,190,90,.28); }
+.lg-dash { width: 22px; border-top: 2px dashed var(--fault); }
+
+details.more { margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.08); }
+details.more summary { font-size: 13px; letter-spacing: 1.2px; font-weight: 700; color: var(--ink-body); cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; }
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::before { content: ""; width: 0; height: 0; border-left: 5px solid currentColor; border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .15s; }
+details.more[open] summary::before { transform: rotate(90deg); }
+details.more summary:hover { color: var(--ink); }
+.info-p { font-size: 15px; color: var(--ink); margin: 6px 0 4px 18px; max-width: 70ch; line-height: 1.4; }
+
+.chart-block { margin-top: 10px; }
+.chart-h { margin-left: calc(var(--gut-axis) + var(--gut-ticks)); margin-bottom: 6px; font-size: 14px; font-weight: 700; text-align: center; }
+.chart-row { display: flex; align-items: stretch; }
+.y-words { width: var(--gut-axis); flex-shrink: 0; display: flex; flex-direction: column; justify-content: space-between;
+           padding-right: 8px; text-align: right; font-size: 13px; color: var(--ink-2); line-height: 1.2; }
+.y-ticks { width: var(--gut-ticks); flex-shrink: 0; position: relative; }
+.y-tick { position: absolute; right: 8px; transform: translateY(-50%); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.plot { position: relative; flex: 1; min-width: 0; }
+.plot.rep { height: 230px; }
+.plot.set { height: 240px; border: 1px solid var(--line-faint); border-radius: 6px; }
+.plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.plot svg * { vector-effect: non-scaling-stroke; }
+.chart-band { position: absolute; left: 0; right: 0; background: var(--band); }
+.band-label { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 700; color: var(--good);
+              background: rgba(24,32,42,.85); padding: 1px 4px; border-radius: 4px; }
+.x-title { margin-left: calc(var(--gut-axis) + var(--gut-ticks)); margin-top: 4px; font-size: 13px; color: var(--ink-2); text-align: center; }
+.x-ticks { display: flex; margin-left: calc(var(--gut-axis) + var(--gut-ticks)); margin-top: 5px; }
+.x-tick { flex: 1 1 0; min-width: 0; text-align: center; font-size: 13px; color: var(--ink-2); }
+.dot { position: absolute; width: 13px; height: 13px; border-radius: 50%; transform: translate(-50%, -50%);
+       background: var(--trace); border: 2px solid #18202a; }
+.dot-good { background: var(--good); } .dot-warn { background: var(--warn-dot); }
+.dot-bad { background: var(--fault); } .dot-none { background: var(--none); }
+
+.phase-key { margin-bottom: 12px; padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,.04); }
+.key-chart { position: relative; height: 40px; margin-top: 6px; }
+.key-chart svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.key-chart svg * { vector-effect: non-scaling-stroke; }
+.key-words { display: flex; margin-top: 2px; }
+.key-word { flex: 1 1 0; text-align: center; font-size: 12px; letter-spacing: 1px; color: var(--ink-2); font-weight: 700; }
+
+.cue { margin-top: 12px; padding: 10px 14px 11px; border-radius: 12px; background: var(--good-bg); }
+.cue.cue-warn { background: var(--warn-bg); } .cue.cue-bad { background: var(--fault-bg); }
+.cue-title { font-size: 16px; font-weight: 700; color: var(--good); }
+.cue.cue-warn .cue-title { color: var(--warn); } .cue.cue-bad .cue-title { color: var(--fault); }
+.cue-body { font-size: 14px; color: var(--ink); margin-top: 3px; }
+.cue-sub { font-size: 13px; color: var(--ink-2); margin-top: 3px; }
+
+.tempo { margin-top: 16px; }
+.tempo-row { display: flex; align-items: center; margin-bottom: 8px; }
+.tempo-lbl { width: 56px; flex-shrink: 0; font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.bar { position: relative; flex: 1; height: 18px; border-radius: 9px; background: rgba(255,255,255,.06); overflow: hidden; }
+.bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 9px; background: var(--trace); }
+.tempo-val { width: 64px; flex-shrink: 0; margin-left: 12px; text-align: right; font-size: 22px; font-weight: 700; color: var(--ink); }
+.ticks { position: relative; height: 32px; margin-left: 56px; margin-right: 76px; }
+.no-numbers .ticks { margin-right: 0; }
+.tick { position: absolute; top: 2px; transform: translateX(-50%); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.tick-unit { position: absolute; right: 0; top: 16px; font-size: 12px; color: var(--ink-3); }
+
+.time-row { display: flex; align-items: flex-start; gap: 24px; margin-top: 14px; }
+.ptable-block { width: 210px; flex-shrink: 0; }
+.table-h { font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
+.ptable { border: 1px solid rgba(255,255,255,.08); border-radius: 8px; overflow: hidden; }
+.ptr { display: flex; } .ptr-head { background: rgba(255,255,255,.06); } .ptr-alt { background: rgba(255,255,255,.03); }
+.ptd { flex: 1 1 0; padding: 4px 10px; font-size: 14px; text-align: center; font-variant-numeric: tabular-nums; }
+.ptd-h { font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.tempo-side { flex: 1; min-width: 0; margin-top: 0; }
+
+.repnav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.repnav-top { margin-top: 0; flex-wrap: wrap; justify-content: flex-end; gap: 6px; max-width: 60%; }
+.repdot { width: 42px; height: 38px; border-radius: 10px; border: 1px solid rgba(255,255,255,.22); background: #1d2631;
+          color: var(--ink); font: 700 15px var(--font); cursor: pointer; }
+.repdot:hover { background: var(--accent); color: #0b1622; border-color: var(--accent); }
+.repdot-fault { border-color: var(--fault); color: var(--fault); }
+
+@media (max-width: 960px) {
+  .sheet { padding: 16px; }
+  .review { flex-direction: column; align-items: stretch; }
+  .mlist { width: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .top { flex-wrap: wrap; }
+  .stamp { margin-left: 0; text-align: left; }
+}
+@media (max-width: 560px) {
+  :root { --gut-axis: 72px; --gut-ticks: 36px; }
+  .y-words { font-size: 11px; }
+  .h1 { font-size: 24px; } .big { font-size: 28px; }
+  .detail { padding: 14px 12px; }
+  .time-row { flex-direction: column; gap: 14px; }
+  .ptable-block { width: 100%; }
+  .repnav-top { max-width: 100%; justify-content: flex-start; }
+  .verdict { flex-wrap: wrap; }
+  .icon { width: 72px; height: 51px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <div class="meta">
+    <span id="meta-src"></span>
+    <label class="switch" for="show-numbers"><input type="checkbox" id="show-numbers" checked> Show numbers</label>
+  </div>
+  <div id="sheet" class="sheet"></div>
+</div>
+
+<script type="application/json" id="review-data">__DATA__</script>
+<script>
+(() => {
+"use strict";
+const D = JSON.parse(document.getElementById("review-data").textContent);
+const sheet = document.getElementById("sheet");
+const $ = (sel, root = sheet) => root.querySelector(sel);
+
+const f0 = v => String(Math.round(v));
+const f1 = v => v.toFixed(1);
+const sgn0 = v => { const r = Math.round(Math.abs(v)); return v > 0 && r ? "+" + r : v < 0 && r ? "-" + r : (v > 0 ? "+0" : v < 0 ? "-0" : "0"); };
+const pct = v => Math.round(v * 100) + "%";
+const num = v => (v === null || v === undefined || Number.isNaN(Number(v))) ? null : Number(v);
+const F = v => num(v) ?? 0;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+const depthWord = v => v === "too_shallow" ? "too shallow" : v;
+const hasFault = (r, f) => (r.faults || []).includes(f);
+const faultCount = r => (r.faults || []).length;
+
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgIn(host) {
+  const s = document.createElementNS(SVGNS, "svg");
+  s.setAttribute("viewBox", "0 0 1 1"); s.setAttribute("preserveAspectRatio", "none");
+  host.appendChild(s); return s;
+}
+function line(svg, pts, color, w, dashed, fill) {
+  const p = document.createElementNS(SVGNS, fill ? "polygon" : "polyline");
+  p.setAttribute("points", pts.map(q => q[0] + "," + q[1]).join(" "));
+  if (fill) { p.setAttribute("fill", fill); p.setAttribute("stroke", "none"); }
+  else {
+    p.setAttribute("fill", "none"); p.setAttribute("stroke", color); p.setAttribute("stroke-width", w);
+    p.setAttribute("stroke-linejoin", "round"); p.setAttribute("stroke-linecap", "round");
+    if (dashed) p.setAttribute("stroke-dasharray", "6 4");
+  }
+  svg.appendChild(p); return p;
+}
+const YN = (v, lo, hi) => hi - lo < 1e-6 ? 0.5 : 1 - Math.min(1, Math.max(0, (v - lo) / (hi - lo)));
+
+function niceStep(raw) {
+  if (!(raw > 0) || !isFinite(raw)) return 1;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * mag;
+}
+function bounds(vals, includeZero, symmetric, repStyle) {
+  vals = vals.filter(v => v !== null && isFinite(v));
+  if (!vals.length) return { lo: 0, hi: 1, ticks: 2 };
+  let min = Math.min(...vals), max = Math.max(...vals);
+  if (includeZero) { min = Math.min(min, 0); max = Math.max(max, 0); }
+  if (symmetric) { const m = Math.max(Math.abs(min), Math.abs(max)); min = -m; max = m; }
+  let range = max - min;
+  if (range < 1e-6) { range = Math.max(Math.abs(max), 1); max = min + range; }
+  max += range * 0.12;
+  if (repStyle || !includeZero) min -= range * 0.12;
+  if (symmetric) { const m = Math.max(Math.abs(min), Math.abs(max)); min = -m; max = m; }
+  let step = niceStep((max - min) / 3), lo = 0, hi = 1, ticks = 2;
+  for (let g = 0; g < 8; g++) {
+    lo = Math.floor(min / step) * step; hi = Math.ceil(max / step) * step;
+    ticks = Math.round((hi - lo) / step) + 1;
+    if (ticks > 6) { step *= 2; continue; }
+    if (ticks < 3) { step /= 2; continue; }
+    break;
+  }
+  ticks = Math.min(7, Math.max(2, ticks));
+  if (hi - lo < 1e-6) hi = lo + 1;
+  return { lo, hi, ticks };
+}
+function axis(tickHost, svg, b, gridColor) {
+  tickHost.innerHTML = "";
+  const dec = (b.hi - b.lo) < 6 ? 1 : 0;
+  for (let i = 0; i < b.ticks; i++) {
+    const y = b.ticks === 1 ? 0.5 : i / (b.ticks - 1);
+    line(svg, [[0, y], [1, y]], gridColor, 1);
+    const l = document.createElement("span"); l.className = "y-tick";
+    l.style.top = (y * 100) + "%"; l.textContent = (b.hi - (b.hi - b.lo) * y).toFixed(dec);
+    tickHost.appendChild(l);
+  }
+}
+function chartBlock(title, words, cls, xTitle) {
+  return `<div class="chart-block"><div class="chart-h">${title}</div>
+    <div class="chart-row"><div class="y-words"><span>${words[0]}</span><span>${words[1]}</span><span>${words[2]}</span></div>
+    <div class="y-ticks"></div><div class="plot ${cls}"></div></div>
+    ${cls === "set" ? '<div class="x-ticks"></div><div class="x-title">Repetition</div>' : `<div class="x-title">${xTitle || ""}</div>`}</div>`;
+}
+const more = (a, b, t1 = "WHAT THIS MEASURES", t2 = "WHAT THIS TELLS YOU") =>
+  `<details class="more"><summary>${t1}</summary><p class="info-p">${a}</p></details>
+   <details class="more"><summary>${t2}</summary><p class="info-p">${b}</p></details>`;
+
+const IC = { grey: "#75808c", blue: "#7fb4f2", warn: "#e07a1c", gap: "#c43c2c" };
+function icon(kind) {
+  const W = 96, H = 68, P = (x, y) => (x * W).toFixed(1) + "," + (y * H).toFixed(1);
+  const L = (c, w, dashed, ...pts) => `<polyline fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${dashed ? ' stroke-dasharray="4 3"' : ""} points="${pts.map(p => P(...p)).join(" ")}"/>`;
+  const ring = (cx, cy, rx, ry) => `<ellipse cx="${cx * W}" cy="${cy * H}" rx="${rx * W}" ry="${ry * H}" fill="none" stroke="${IC.blue}" stroke-width="2.5"/>`;
+  const arrow = (a, b, c) => { const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy), d = [dx / l, dy / l], n = [-d[1], d[0]];
+    return L(c, 2.5, false, a, b) + L(c, 2.5, false, [b[0] - d[0] * .07 + n[0] * .05, b[1] - d[1] * .07 + n[1] * .05], b, [b[0] - d[0] * .07 - n[0] * .05, b[1] - d[1] * .07 - n[1] * .05]); };
+  let s = "";
+  if (kind === "knee") {
+    s = L(IC.blue, 3, false, [.28, .10], [.41, .52], [.22, .94]) + L(IC.blue, 3, false, [.72, .10], [.59, .52], [.78, .94]) +
+        L(IC.grey, 1.4, true, [.41, .52], [.59, .52]) + arrow([.30, .36], [.44, .36], IC.warn) + arrow([.70, .36], [.56, .36], IC.warn);
+  } else if (kind === "sym") {
+    s = L(IC.blue, 2.5, false, [.34, .14], [.66, .14]) + L(IC.blue, 3, false, [.34, .14], [.24, .46], [.30, .94]) +
+        L(IC.blue, 3, false, [.66, .14], [.76, .62], [.70, .94]) + L(IC.grey, 1.4, true, [.10, .46], [.90, .46]) + L(IC.gap, 2.5, false, [.80, .46], [.80, .62]);
+  } else if (kind === "sh") {
+    s = L(IC.grey, 1.4, true, [.12, .51], [.88, .51]) + ring(.50, .20, .09, .13) + L(IC.blue, 3.5, false, [.22, .40], [.78, .62]) +
+        L(IC.blue, 2.5, false, [.50, .51], [.50, .90]) + L(IC.gap, 2.5, false, [.78, .51], [.78, .62]);
+  } else if (kind === "style") {
+    s = L(IC.grey, 3, false, [.10, .30], [.90, .30]) + L(IC.grey, 3, false, [.12, .22], [.12, .38]) + L(IC.grey, 3, false, [.88, .22], [.88, .38]) +
+        ring(.50, .14, .085, .115) + L(IC.blue, 3.5, false, [.37, .34], [.63, .34]) +
+        L(IC.blue, 3, false, [.37, .34], [.26, .44], [.30, .30]) + L(IC.blue, 3, false, [.63, .34], [.74, .44], [.70, .30]) +
+        L(IC.warn, 3.5, false, [.50, .34], [.50, .60]) + L(IC.blue, 3, false, [.42, .60], [.58, .60]) +
+        L(IC.warn, 3, false, [.42, .60], [.26, .74], [.22, .94]) + L(IC.warn, 3, false, [.58, .60], [.74, .74], [.78, .94]);
+  }
+  return `<svg class="icon" viewBox="0 0 ${W} ${H}" aria-hidden="true">${s}</svg>`;
+}
+
+function bandOf(r) {
+  const off = num(r.depth_offset_mm), b = num(r.depth_band_mm), pm = num(r.depth_partial_max_mm);
+  if (off === null || b === null) return null;
+  const lo = off - b, hi = off + b, t = r.target_depth;
+  if (t === "partial") return { lo: hi, hi: pm };
+  if (t === "deep") return { lo: null, hi: lo };
+  return { lo, hi };
+}
+
+function cards(list) {
+  return list.map(([k, name]) => `<button type="button" class="mcard" data-key="${k}">
+    <div class="mc-top"><span class="mc-name">${name}</span><span class="pill" id="${k}-pill"></span></div>
+    <div class="mc-ov" id="${k}-state"></div></button>`).join("");
+}
+function wireCards(onSelect) {
+  sheet.querySelectorAll(".mcard").forEach(b => b.addEventListener("click", () => onSelect(b.dataset.key)));
+}
+function select(key, traceKeys) {
+  sheet.querySelectorAll(".mcard").forEach(b => b.classList.toggle("on", b.dataset.key === key));
+  sheet.querySelectorAll(".pane").forEach(p => p.classList.toggle("hidden", p.id !== "pane-" + key));
+  const pk = $("#phase-key"); if (pk) pk.classList.toggle("hidden", !(traceKeys || []).includes(key));
+}
+function pill(k, cls, text) { const l = $("#" + k + "-pill"); if (!l) return; l.textContent = text; l.className = "pill" + (cls === "neutral" ? "" : " pill-" + cls); }
+const setText = (id, t) => { const e = $("#" + id); if (e) e.textContent = t; };
+const drawTicks = () => document.querySelectorAll(".ticks").forEach(ax => {
+  const sc = ax.dataset.scale === "PAUSE_S" ? PAUSE_S : TEMPO_S;
+  let h = "";
+  for (let k = 0; k <= Math.floor(sc + 1e-3); k++) h += `<span class="tick" style="left:${100 * k / sc}%">${k}</span>`;
+  ax.innerHTML = h + '<span class="tick-unit">seconds</span>';
+});
+const fill = (id, f) => { const e = $("#" + id); if (e) e.style.width = (Math.min(1, Math.max(0, f)) * 100) + "%"; };
+
+const SYM_EVEN = 3, SYM_SCALE = 12, SH_SCALE = 6, TEMPO_S = 4, PAUSE_S = 3, WOBBLE = 0.05;
+const TRACE_KEYS = ["depth", "knee", "sym", "sh"];
+
+function renderRep(r, fromSet) {
+  const repS = F(r.descent_s) + F(r.bottom_dwell_s) + F(r.ascent_s);
+  const ph1 = repS > 0 ? F(r.t_bottom_s) / repS : -1, ph2 = repS > 0 ? F(r.t_ascent_s) / repS : -1;
+  const hasLine = f => f > 0.02 && f < 0.98;
+  const clean = faultCount(r) === 0, first = (r.faults || [])[0];
+  const title = f => f === "valgus" ? "Sustained inward knee movement" : f === "shallow" ? "Not deep enough" : f === "depth_unmeasured" ? "Depth could not be measured" : "Technique fault identified";
+
+  sheet.innerHTML = `
+  <div class="top"><div class="top-text"><div class="eyebrow">BACK SQUAT / REVIEW</div>
+    <div class="h1">Rep ${esc(r.rep)}</div>
+    <div class="h1-sub">Back squat · Target ${esc(depthWord(r.target_depth))} · Reached ${esc(depthWord(r.variation))}</div></div>
+    ${fromSet ? '<button type="button" class="btn btn-ghost" id="btn-close">Back to set</button>'
+              : '<button type="button" class="btn btn-ghost" aria-disabled="true" title="Not active in this reproduction">End set</button><button type="button" class="btn btn-primary" aria-disabled="true" title="Not active in this reproduction">Done</button>'}
+  </div>
+  <div class="verdict${clean ? " ok" : first === "depth_unmeasured" ? " warn" : ""}"><div class="verdict-text">
+    <div class="verdict-title">${clean ? "Good repetition" : esc(title(first))}</div>
+    <div class="verdict-body">${esc((r.cues || [])[0] || "")}</div></div></div>
+  <div class="review">
+    <div class="mlist">${cards([["depth", "Depth"], ["knee", "Knee tracking"], ["sym", "Knee symmetry"], ["sh", "Shoulder alignment"], ["style", "Squat style"], ["tempo", "Timing"], ["pause", "Pause at the bottom"]])}</div>
+    <div class="detail">
+      <div id="phase-key" class="phase-key"><div class="note" id="phase-key-note"></div><div class="key-chart" id="key-chart"></div>
+        <div class="key-words"><span class="key-word">Descent</span><span class="key-word" id="key-bottom">Bottom</span><span class="key-word">Ascent</span></div></div>
+
+      <div class="pane" id="pane-depth"><div class="pane-head"><span class="pane-h">Depth</span><span class="pane-scope">This repetition</span></div>
+        <div class="big-row"><span class="big num" id="depth-big"></span><span class="big-cap num" id="depth-num"></span></div>
+        <div class="legend"><span class="lg-item"><span class="lg-band"></span>Target range</span></div>
+        ${chartBlock("Hip position relative to knees (mm)", ["Shallower", "Knee level", "Deeper"], "rep", "Time through repetition")}
+        ${more("Measures the vertical position of your hips relative to your knees, using the median of measurements near the bottom of the rep.", "See whether you reached your selected depth. Use the target band to guide how far you lower on your next rep.")}</div>
+
+      <div class="pane" id="pane-knee"><div class="pane-head"><span class="pane-h">Knee tracking</span>${icon("knee")}</div>
+        <div class="big-row"><span class="big num" id="knee-big"></span><span class="big-cap num" id="knee-num"></span></div>
+        <div class="legend"><span class="lg-item"><span class="lg-dash"></span>Inward-movement limit</span></div>
+        ${chartBlock("Knee separation relative to standing (mm)", ["Wider", "Standing reference", "Narrower"], "rep", "Time through repetition")}
+        <div class="cue" id="valgus-cue"><div class="cue-title" id="cue-title"></div><div class="cue-body" id="cue-body"></div>
+          <div class="cue-sub num" id="knee-hold"></div><div class="cue-sub num" id="knee-when"></div></div>
+        ${more("Measures the separation between the knees throughout the repetition relative to the separation recorded in the standing position. A reduction indicates that the knees have moved inward relative to their starting position.", "See when your knees moved closer together and whether the inward movement was brief or sustained.")}</div>
+
+      <div class="pane" id="pane-sym"><div class="pane-head"><span class="pane-h">Knee symmetry</span>${icon("sym")}</div>
+        <div class="big-row"><span class="big num" id="sym-big"></span><span class="big-cap num" id="sym-num"></span></div>
+        ${chartBlock("Knee flexion difference (°)", ["Right more flexed", "Equal flexion", "Left more flexed"], "rep", "Time through repetition")}
+        ${more("Compares left and right knee flexion throughout the repetition to identify differences between the two sides.", "Values closer to zero mean your knees bent by similar amounts. The graph shows which knee was more bent during the movement.")}</div>
+
+      <div class="pane" id="pane-sh"><div class="pane-head"><span class="pane-h">Shoulder alignment</span>${icon("sh")}</div>
+        <div class="big-row"><span class="big num" id="sh-big"></span><span class="big-cap num" id="sh-num"></span></div>
+        ${chartBlock("Shoulder tilt relative to standing (°)", ["Right higher", "Standing reference", "Left higher"], "rep", "Time through repetition")}
+        ${more("Measures how far the shoulder line moves from your own standing shoulder line, which is recorded while you hold your stance before the set. Zero means the shoulders are carried as they were at setup, not that they are perfectly horizontal.", "See whether you tilted further towards one side as you squatted. The graph shows changes that the average may hide.")}</div>
+
+      <div class="pane" id="pane-style"><div class="pane-head"><span class="pane-h">Squat style</span>${icon("style")}</div>
+        <div class="big-row"><span class="big" id="style-big"></span><span class="big-cap num" id="style-num"></span></div>
+        ${more("Compares trunk and tibia inclination at the bottom of the squat. Greater forward trunk inclination is classified as more hip-driven, while greater tibia inclination is classified as more knee-driven.", "See whether your squat was more upright or forward-leaning. The middle category, balanced, is not a target you need to aim for.")}</div>
+
+      <div class="pane" id="pane-tempo"><div class="pane-head"><span class="pane-h">Timing</span><span class="pane-scope">This repetition</span></div>
+        <div class="tempo"><div class="tempo-row"><span class="tempo-lbl">Down</span><div class="bar"><div class="bar-fill" id="tempo-down"></div></div><span class="tempo-val num" id="tempo-down-val"></span></div>
+          <div class="tempo-row"><span class="tempo-lbl">Up</span><div class="bar"><div class="bar-fill" id="tempo-up"></div></div><span class="tempo-val num" id="tempo-up-val"></span></div>
+          <div class="ticks" data-scale="TEMPO_S"></div></div>
+        ${more("Measures the duration of the descent and ascent phases of the repetition.", "Compare your lowering and rising times with the pace you intended.")}</div>
+
+      <div class="pane" id="pane-pause"><div class="pane-head"><span class="pane-h">Pause at the bottom</span><span class="pane-scope">This repetition</span></div>
+        <div class="tempo"><div class="tempo-row"><span class="tempo-lbl">Held</span><div class="bar"><div class="bar-fill" id="pause-fill"></div></div><span class="tempo-val num" id="pause-fill-val"></span></div>
+          <div class="ticks" data-scale="PAUSE_S"></div></div>
+        ${more("Measures the time spent in the detected bottom phase before rising.", "See whether you paused before rising or moved straight into the ascent. Compare the pause with what you intended.")}</div>
+    </div>
+  </div>`;
+
+  const hasBottom = hasLine(ph1) && hasLine(ph2) && ph2 - ph1 > 0.02;
+  $("#key-bottom").classList.toggle("hidden", !hasBottom);
+  setText("phase-key-note", hasBottom ? "The dashed vertical lines separate the three phases of the repetition."
+    : "The dashed vertical line separates the descent from the ascent. There was no pause at the bottom.");
+  const ks = svgIn($("#key-chart"));
+  (hasBottom ? [1 / 3, 2 / 3] : [0.5]).forEach(x => line(ks, [[x, .05], [x, .95]], "#3a4552", 1.5, true));
+  line(ks, [[.01, .55], [.99, .55]], "#3a4552", 1.4, true);
+  const phaseLines = svg => {
+    const same = Math.abs(ph2 - ph1) <= 0.02;
+    (same ? [ph1] : [ph1, ph2]).forEach(f => { if (hasLine(f)) { const x = .06 + .88 * f; line(svg, [[x, .05], [x, .95]], "#3a4552", 1.5, true); } });
+  };
+  const GRID = "#26303c", REF = "#5d6772";
+  const blocks = id => { const p = $("#pane-" + id); return { ticks: p.querySelector(".y-ticks"), plot: p.querySelector(".plot") }; };
+
+  const met = r.depth_met, depthOk = met === true;
+  const deeper = r.depth_met === "deeper";
+  const unmeasured = hasFault(r, "depth_unmeasured");
+  setText("depth-state", `Target ${depthWord(r.target_depth)} · reached ${depthWord(r.variation)}`);
+  if (unmeasured) pill("depth", "neutral", "Not measured");
+  else if (depthOk) pill("depth", "good", "On target");
+  else if (deeper) pill("depth", "warn", "Deeper than target");
+  else pill("depth", "fault", "Not deep enough");
+  setText("depth-big", f0(F(r.depth_margin_mm)) + " mm");
+  setText("depth-num", `hip position above knee level · knee angle ${f0(F(r.knee_at_depth))}°`);
+  {
+    const tr = (r.depth_traj || []).map(p => p[1]);
+    const { ticks, plot } = blocks("depth");
+    if (tr.length >= 2) {
+      const band = bandOf(r), seen = tr.slice();
+      if (band) { seen.push(band.hi); if (band.lo !== null) seen.push(band.lo); }
+      const b = bounds(seen, false, false, true);
+      if (band) {
+        const a = YN(band.hi, b.lo, b.hi), z = band.lo === null ? 1 : YN(band.lo, b.lo, b.hi);
+        const el = document.createElement("div"); el.className = "chart-band";
+        el.style.top = (a * 100) + "%"; el.style.height = (Math.max(z - a, 0) * 100) + "%";
+        el.innerHTML = '<span class="band-label">TARGET</span>'; plot.appendChild(el);
+      }
+      const svg = svgIn(plot); axis(ticks, svg, b, GRID); phaseLines(svg);
+      line(svg, tr.map((v, i) => [tr.length === 1 ? 0 : i / (tr.length - 1), YN(v, b.lo, b.hi)]), "#7fb4f2", 2.5);
+    }
+  }
+
+  const devMm = F(r.valgus_dev_mm), limitMm = F(r.valgus_limit_mm), kneeBad = hasFault(r, "valgus"), hold = F(r.valgus_frac);
+  setText("knee-state", kneeBad ? "Sustained inward knee movement" : hold >= WOBBLE ? "Brief inward knee movement" : "No excessive inward knee movement");
+  pill("knee", kneeBad ? "fault" : hold > 0 ? "warn" : "good", kneeBad ? "Sustained" : hold > 0 ? "Brief" : "On target");
+  setText("knee-big", sgn0(-devMm) + " mm");
+  setText("knee-num", "closest knee separation relative to standing (+ wider, - narrower)");
+  {
+    const traj = r.valgus_traj || [], { ticks, plot } = blocks("knee");
+    if (traj.length >= 2) {
+      const b = bounds(traj.map(p => p[1]).concat([limitMm * 1.4]), false, true, true);
+      const svg = svgIn(plot); axis(ticks, svg, b, GRID); phaseLines(svg);
+      const yZero = YN(0, b.lo, b.hi);
+      line(svg, [[.06, yZero], [.94, yZero]], REF, 1.5);
+      if (limitMm > b.lo && limitMm < b.hi) line(svg, [[.06, YN(limitMm, b.lo, b.hi)], [.94, YN(limitMm, b.lo, b.hi)]], "#e06a5a", 1.5, true);
+      const t0 = traj[0][0], span = Math.max(traj[traj.length - 1][0] - t0, 1e-3);
+      const pts = traj.map(p => [.06 + .88 * Math.min(1, Math.max(0, (p[0] - t0) / span)), YN(p[1], b.lo, b.hi)]);
+      line(svg, [[pts[0][0], yZero], ...pts, [pts[pts.length - 1][0], yZero]], null, 0, false, "rgba(224,122,28,.13)");
+      line(svg, pts, "#e07a1c", 2.5);
+    }
+  }
+  const anyCave = hold > 0, cue = $("#valgus-cue");
+  cue.classList.toggle("cue-bad", kneeBad); cue.classList.toggle("cue-warn", !kneeBad && anyCave);
+  setText("cue-title", kneeBad ? "Sustained inward knee movement" : anyCave ? "Brief inward knee movement" : "Within the knee-movement limit");
+  setText("cue-body", kneeBad ? "Your knees moved inward beyond the limit for a sustained portion of the repetition. Aim to keep your knees aligned with the direction of your toes."
+    : anyCave ? "Your knees briefly moved closer together beyond the set limit." : "Your knees stayed within the inward-movement limit during the assessed movement.");
+  const phaseAt = t => { if (repS <= 0) return "descent"; const fr = t / repS; return fr < ph1 ? "descent" : fr < ph2 ? "bottom" : "ascent"; };
+  setText("knee-hold", anyCave ? `Above the limit for ${pct(hold)} of the repetition` : "");
+  setText("knee-when", anyCave ? `Longest inward movement: ${f1(F(r.valgus_s))} s during the ${phaseAt(F(r.valgus_t))}` : "");
+
+  function drawTraj(id, traj, floorAbs, negate, bandAbs, bandText) {
+    traj = traj || []; const { ticks, plot } = blocks(id);
+    if (traj.length < 2) return;
+    const seen = [floorAbs, -floorAbs, 0];
+    if (bandAbs > 0) seen.push(bandAbs, -bandAbs);
+    traj.forEach(p => seen.push(negate ? -p[1] : p[1]));
+    const b = bounds(seen, false, true, true);
+    if (bandAbs > 0) {
+      const top = YN(bandAbs, b.lo, b.hi), bot = YN(-bandAbs, b.lo, b.hi);
+      const el = document.createElement("div"); el.className = "chart-band";
+      el.style.top = (top * 100) + "%"; el.style.height = (Math.max(bot - top, 0) * 100) + "%";
+      el.innerHTML = `<span class="band-label">${esc(bandText)}</span>`; plot.appendChild(el);
+    }
+    const svg = svgIn(plot); axis(ticks, svg, b, GRID); phaseLines(svg);
+    const yRef = YN(0, b.lo, b.hi); line(svg, [[.06, yRef], [.94, yRef]], REF, 1.5);
+    const t0 = traj[0][0], span = Math.max(traj[traj.length - 1][0] - t0, 1e-3);
+    line(svg, traj.map(p => [.06 + .88 * Math.min(1, Math.max(0, (p[0] - t0) / span)), YN(negate ? -p[1] : p[1], b.lo, b.hi)]), "#7fb4f2", 2.5);
+  }
+
+  const sym = F(r.symmetry_deg), symSigned = F(r.sym_signed_deg);
+  setText("sym-state", "Average knee flexion difference"); pill("sym", "neutral", "Reported");
+  setText("sym-big", f1(sym) + "°");
+  setText("sym-num", "average knee flexion difference · " + (Math.abs(symSigned) < SYM_EVEN ? "similar flexion on both sides" : symSigned > 0 ? "right knee more flexed" : "left knee more flexed"));
+  drawTraj("sym", r.sym_signed_traj, SYM_SCALE * 0.4, false, 0);
+
+  const tilt = F(r.shoulder_tilt_deg), even = F(r.shoulder_even_deg);
+  setText("sh-state", "Average shoulder tilt relative to standing"); pill("sh", "neutral", "Reported");
+  setText("sh-big", f1(Math.abs(tilt)) + "°");
+  setText("sh-num", "average shoulder tilt relative to standing · " + (Math.abs(tilt) < 0.5 ? "little average change from standing" : tilt > 0 ? "left shoulder higher" : "right shoulder higher"));
+  drawTraj("sh", r.shoulder_tilt_traj, SH_SCALE * 0.4, true, even, `WITHIN ${f0(even)}°`);
+
+  const dom = r.dominance || "", word = !dom ? "—" : dom.includes("hip") ? "Hip-driven" : dom.includes("knee") ? "Knee-driven" : "Balanced";
+  setText("style-state", word); pill("style", "neutral", "Reported");
+  setText("style-big", word); setText("style-num", `upper-body lean minus shin lean ${f0(F(r.trunk_tibia_deg))}°`);
+
+  const down = F(r.descent_s), up = F(r.ascent_s), dwell = F(r.bottom_dwell_s);
+  setText("tempo-state", `${f1(down)} s down, ${f1(up)} s up`); pill("tempo", "neutral", "Reported");
+  setText("tempo-down-val", f1(down) + " s"); setText("tempo-up-val", f1(up) + " s");
+  fill("tempo-down", down / TEMPO_S); fill("tempo-up", up / TEMPO_S);
+  setText("pause-state", dwell < 0.15 ? "No pause" : dwell < 0.8 ? "Brief pause" : "Pause at the bottom"); pill("pause", "neutral", "Reported");
+  setText("pause-fill-val", f1(dwell) + " s");
+  fill("pause-fill", dwell / PAUSE_S);
+  drawTicks();
+
+  wireCards(k => select(k, TRACE_KEYS));
+  select(kneeBad ? "knee" : "depth", TRACE_KEYS);
+  if (fromSet) $("#btn-close").addEventListener("click", () => { renderSet(); window.scrollTo(0, 0); });
+}
+
+let setPane = "depth";
+function renderSet() {
+  const reps = D.reps, n = reps.length, target = reps[n - 1].target_depth;
+  const repNos = reps.map((r, i) => String(r.rep ?? i + 1));
+  const scope = `Across ${n} repetitions`;
+  sheet.innerHTML = `
+  <div class="top"><div class="top-text"><div class="eyebrow">SET SUMMARY</div><div class="h1">SET SUMMARY</div>
+    <div class="h1-sub">${n === 1 ? `Set ${D.set_no} · 1 repetition · ${esc(cap(target))} squat` : `Set ${D.set_no} · ${n} repetitions · ${esc(cap(target))} squat`}</div></div>
+    ${D.stamp ? `<div class="stamp">${esc(D.stamp)}</div>` : ""}
+    <button type="button" class="btn btn-primary" aria-disabled="true" title="Not active in this reproduction">Next set</button></div>
+  <div class="verdict" id="verdict"><div class="verdict-text"><div class="verdict-title" id="verdict-title"></div><div class="verdict-body" id="verdict-body"></div></div>
+    <div class="repnav repnav-top" id="rep-nav-top"></div></div>
+  <div class="review">
+    <div class="mlist">${cards([["depth", "Depth"], ["valgus", "Knee tracking"], ["sym", "Knee symmetry"], ["sh", "Shoulder alignment"], ["tempo", "Timing"], ["reps", "Repetitions"]])}</div>
+    <div class="detail">
+      <div class="pane" id="pane-depth"><div class="pane-head"><span class="pane-h">Depth</span><span class="pane-scope">${scope}</span></div>
+        <div class="big-row"><span class="big" id="depth-big"></span><span class="big-cap num" id="depth-num"></span></div>
+        <div class="legend"><span class="lg-item"><span class="lg-band"></span>Target range</span><span class="lg-item"><span class="lg-dot dot-good"></span>On target</span>
+          <span class="lg-item"><span class="lg-dot dot-bad"></span>Not deep enough</span><span class="lg-item"><span class="lg-dot dot-warn"></span>Deeper than target</span></div>
+        ${chartBlock("Hip position relative to knees (mm)", ["Shallower", "Knee level", "Deeper"], "set")}
+        ${more("Shows hip height relative to knee height near the bottom of each rep. The shaded band marks your selected depth range.", "See how consistently you reached your selected depth and which reps were shallower or deeper.")}</div>
+
+      <div class="pane" id="pane-valgus"><div class="pane-head"><span class="pane-h">Knee tracking</span><span class="pane-scope">${scope}</span></div>
+        <div class="big-row"><span class="big num" id="valgus-big"></span><span class="big-cap num" id="valgus-num"></span></div>
+        <div class="legend"><span class="lg-item"><span class="lg-dash"></span><span id="lg-thresh">Inward-movement limit</span></span><span class="lg-item"><span class="lg-dot dot-bad"></span>Sustained inward movement</span>
+          <span class="lg-item"><span class="lg-dot dot-warn"></span>Brief inward movement</span><span class="lg-item"><span class="lg-dot dot-good"></span>No sustained inward movement</span></div>
+        ${chartBlock("Knee separation relative to standing (mm)", ["Wider", "Standing reference", "Narrower"], "set")}
+        ${more("Measures the reduction in knee separation during each repetition relative to the standing reference. The dashed line indicates the limit used to identify excessive inward movement.", "See whether inward knee movement occurred in isolated reps or repeatedly across the set. Flagged reps show sustained movement beyond the limit.")}</div>
+
+      <div class="pane" id="pane-sym"><div class="pane-head"><span class="pane-h">Knee symmetry</span>${icon("sym")}</div>
+        <div class="big-row"><span class="big num" id="sym-big"></span><span class="big-cap" id="sym-num"></span></div>
+        <div class="note">Values closer to zero indicate more similar knee flexion on both sides</div>
+        ${chartBlock("Knee flexion difference (°)", ["Right more flexed", "Equal flexion", "Left more flexed"], "set")}
+        ${more("Compares left and right knee flexion, using the average difference between the two knee angles for each repetition.", "See whether the same knee tended to bend more across the set or whether the difference changed between reps.")}</div>
+
+      <div class="pane" id="pane-sh"><div class="pane-head"><span class="pane-h">Shoulder alignment</span>${icon("sh")}</div>
+        <div class="big-row"><span class="big num" id="sh-big"></span><span class="big-cap" id="sh-num"></span></div>
+        <div class="legend"><span class="lg-item"><span class="lg-band"></span>Within the standing band</span><span class="lg-item"><span class="lg-dot dot-good"></span>Inside the band</span><span class="lg-item"><span class="lg-dot dot-warn"></span>Outside the band</span></div>
+        ${chartBlock("Shoulder tilt relative to standing (°)", ["Right higher", "Standing reference", "Left higher"], "set")}
+        ${more("Measures how far the shoulder line moves from your own standing shoulder line, recorded while you hold your stance before the set, averaged over each repetition. Zero means the shoulders are carried as they were at setup.", "See whether your shoulders tended to tilt further towards the same side across the set or whether the direction changed between reps.")}</div>
+
+      <div class="pane" id="pane-tempo"><div class="pane-head"><span class="pane-h">Timing</span><span class="pane-scope">${scope}</span></div>
+        <div class="time-row"><div class="ptable-block"><div class="table-h">Bottom pause per rep</div><div class="ptable" id="pause-table"></div></div>
+          <div class="tempo tempo-side"><div class="table-h">Average time</div><div class="tempo-row"><span class="tempo-lbl">Down</span><div class="bar"><div class="bar-fill" id="tempo-down"></div></div><span class="tempo-val num" id="tempo-down-val"></span></div>
+            <div class="tempo-row"><span class="tempo-lbl">Up</span><div class="bar"><div class="bar-fill" id="tempo-up"></div></div><span class="tempo-val num" id="tempo-up-val"></span></div>
+            <div class="ticks" data-scale="TEMPO_S"></div></div></div>
+        ${more("Measures the average duration of the descent and ascent phases across the set, together with the bottom-pause duration of each repetition.", "Compare your average lowering and rising times with your intended pace, and check how consistently you paused at the bottom.")}</div>
+
+      <div class="pane" id="pane-reps"><div class="pane-head"><span class="pane-h">Repetitions</span><span class="pane-scope">${scope}</span></div>
+        <div class="note">Select a repetition to view its full breakdown. Use Back to set to return here.</div>
+        <div class="repnav" id="rep-nav"></div>
+        ${more("Provides the detailed post-repetition summary for any repetition in the set, including depth, knee tracking, knee symmetry and shoulder alignment.", "The set-level charts show how each metric changed across repetitions. Opening an individual repetition provides the corresponding movement trace and detailed assessment.", "WHAT THIS SHOWS")}</div>
+    </div>
+  </div>`;
+
+  const bad = reps.filter(r => faultCount(r) > 0).length, clean = bad === 0;
+  $("#verdict").classList.add(clean ? "ok" : "warn");
+  setText("verdict-title", clean ? "No repetitions flagged" : bad === 1 ? `1 of ${n} repetitions flagged` : `${bad} of ${n} repetitions flagged`);
+  setText("verdict-body", clean ? "Every rep met or exceeded your depth target, with no sustained inward knee movement detected." : "The results below show which repetitions were flagged and why.");
+
+  const GRID = "rgba(255,255,255,.07)", LINE = "rgba(127,180,242,.55)", ZERO = "#5d6772", LIMIT = "#f07a68";
+  function plot(id, vals, cls, extra, includeZero, symmetric, band, limit, zeroLine) {
+    const pane = $("#pane-" + id), host = pane.querySelector(".plot"), yt = pane.querySelector(".y-ticks"), xt = pane.querySelector(".x-ticks");
+    const all = vals.filter(v => v !== null).concat(extra || []);
+    const b = bounds(all, includeZero, symmetric, false);
+    if (band) {
+      const top = YN(band.hi, b.lo, b.hi), bot = YN(band.lo === null ? b.lo : band.lo, b.lo, b.hi);
+      const el = document.createElement("div"); el.className = "chart-band";
+      el.style.top = (top * 100) + "%"; el.style.height = (Math.max(bot - top, 0) * 100) + "%"; host.appendChild(el);
+    }
+    const svg = svgIn(host); axis(yt, svg, b, GRID);
+    if (zeroLine && b.lo < 0 && b.hi > 0) line(svg, [[0, YN(0, b.lo, b.hi)], [1, YN(0, b.lo, b.hi)]], ZERO, 1.5);
+    if (limit !== null && limit !== undefined) line(svg, [[0, YN(limit, b.lo, b.hi)], [1, YN(limit, b.lo, b.hi)]], LIMIT, 2, true);
+    let run = [];
+    const flush = () => { if (run.length > 1) line(svg, run, LINE, 2); run = []; };
+    vals.forEach((v, i) => { if (v === null) flush(); else run.push([(i + 0.5) / n, YN(v, b.lo, b.hi)]); });
+    flush();
+    vals.forEach((v, i) => {
+      if (v === null) return;
+      const d = document.createElement("div"); d.className = "dot " + cls[i];
+      d.style.left = ((i + 0.5) / n * 100) + "%"; d.style.top = (YN(v, b.lo, b.hi) * 100) + "%";
+      d.title = `Rep ${repNos[i]}: ${Math.abs(b.hi - b.lo) < 6 ? v.toFixed(1) : Math.round(v)}`; host.appendChild(d);
+    });
+    xt.innerHTML = repNos.map(k => `<span class="x-tick">${esc(k)}</span>`).join("");
+  }
+
+  {
+    let on = 0, measured = 0, sum = 0;
+    const vals = [], cls = [];
+    reps.forEach(r => {
+      const ok = r.depth_met === true, deeper = r.depth_met === "deeper", um = hasFault(r, "depth_unmeasured");
+      if (ok) on++;
+      const m = num(r.depth_margin_mm); const v = (m !== null && !um) ? m : null; vals.push(v);
+      if (v !== null) { sum += v; measured++; }
+      cls.push(um ? "dot-none" : ok ? "dot-good" : deeper ? "dot-warn" : "dot-bad");
+    });
+    setText("depth-state", on === n ? "All repetitions on target" : `${on} of ${n} repetitions on target`);
+    setText("depth-num", measured === 0 ? "Not measured" : `Average hip position: ${f0(sum / measured)} mm above knee level`);
+    if (on === n) pill("depth", "good", "On target"); else pill("depth", cls.includes("dot-bad") ? "fault" : "warn", `${n - on} off target`);
+    setText("depth-big", `${on}/${n}`);
+    const bandRep = reps.find(r => bandOf(r)), band = bandRep ? bandOf(bandRep) : null;
+    const extra = band ? [band.hi].concat(band.lo !== null ? [band.lo] : []) : [];
+    plot("depth", vals, cls, extra, true, false, band, null, false);
+  }
+  {
+    let caved = 0, measured = 0, signedSum = 0, limit = null;
+    const vals = [], cls = [];
+    reps.forEach(r => {
+      const isBad = hasFault(r, "valgus"); if (isBad) caved++;
+      const brief = !isBad && F(r.valgus_frac) > 0;
+      const dev = num(r.valgus_dev_mm), v = dev === null ? null : -dev; vals.push(v);
+      if (v !== null) { measured++; signedSum += v; }
+      cls.push(v === null ? "dot-none" : isBad ? "dot-bad" : brief ? "dot-warn" : "dot-good");
+      if (limit === null && num(r.valgus_limit_mm) !== null) limit = Math.abs(r.valgus_limit_mm);
+    });
+    setText("valgus-state", caved === 0 ? "No sustained inward knee movement detected" : `${caved} of ${n} repetitions with sustained inward knee movement`);
+    setText("valgus-num", measured === 0 ? "Not measured" : "average closest knee separation relative to standing (+ wider, - narrower)");
+    if (caved > 0) {
+      const flagged = reps.map((r, i) => cls[i] === "dot-bad" ? `Rep ${repNos[i]}` : null).filter(Boolean);
+      pill("valgus", "fault", caved <= 2 ? flagged.join(", ") : `${caved} flagged`);
+    } else if (cls.includes("dot-warn")) pill("valgus", "warn", "Brief"); else pill("valgus", "good", "On target");
+    setText("valgus-big", measured === 0 ? "-" : sgn0(signedSum / measured) + " mm");
+    if (limit !== null) setText("lg-thresh", `Inward-movement limit (${f0(limit)} mm)`);
+    plot("valgus", vals, cls, limit !== null ? [-limit] : [], false, true, null, limit !== null ? -limit : null, true);
+  }
+  {
+    let sum = 0, measured = 0; const vals = [], cls = [];
+    reps.forEach(r => { const sg = num(r.sym_signed_deg); vals.push(sg); const d = num(r.symmetry_deg); if (d !== null) { sum += Math.abs(d); measured++; } cls.push(sg === null ? "dot-none" : "dot-plain"); });
+    setText("sym-state", measured === 0 ? "Not measured" : `Average left–right knee flexion difference: ${f1(sum / measured)}°`);
+    pill("sym", "neutral", "Reported"); setText("sym-big", measured === 0 ? "-" : f1(sum / measured) + "°");
+    setText("sym-num", "average left–right knee flexion difference across the set");
+    plot("sym", vals, cls, [], false, true, null, null, true);
+  }
+  {
+    let sum = 0, measured = 0, even = null; const vals = [], cls = [];
+    reps.forEach(r => {
+      const t = num(r.shoulder_tilt_deg), v = t === null ? null : -t; vals.push(v);
+      if (v !== null) { sum += Math.abs(v); measured++; }
+      cls.push(v === null || r.shoulder_band === "unmeasured" ? "dot-none" : r.shoulder_band === "even" ? "dot-good" : "dot-warn");
+      if (even === null && num(r.shoulder_even_deg) !== null) even = Number(r.shoulder_even_deg);
+    });
+    setText("sh-state", measured === 0 ? "Not measured" : `Average shoulder tilt relative to standing: ${f1(sum / measured)}°`);
+    pill("sh", "neutral", "Reported"); setText("sh-big", measured === 0 ? "-" : f1(sum / measured) + "°");
+    setText("sh-num", "average shoulder tilt relative to standing across the set");
+    const hasBand = even !== null && even > 0;
+    plot("sh", vals, cls, hasBand ? [-even, even] : [], false, true, hasBand ? { lo: -even, hi: even } : null, null, true);
+  }
+  {
+    let down = 0, up = 0, dn = 0, un = 0;
+    const rows = [`<div class="ptr ptr-head"><span class="ptd ptd-h">Rep</span><span class="ptd ptd-h">Pause (s)</span></div>`];
+    reps.forEach((r, i) => {
+      if (num(r.descent_s) !== null) { down += r.descent_s; dn++; }
+      if (num(r.ascent_s) !== null) { up += r.ascent_s; un++; }
+      const w = num(r.bottom_dwell_s);
+      rows.push(`<div class="ptr${i % 2 === 1 ? " ptr-alt" : ""}"><span class="ptd">${esc(repNos[i])}</span><span class="ptd">${w === null ? "-" : f1(w)}</span></div>`);
+    });
+    $("#pause-table").innerHTML = rows.join("");
+    const md = dn ? down / dn : 0, mu = un ? up / un : 0;
+    setText("tempo-state", `Average tempo: ${f1(md)} s down · ${f1(mu)} s up`); pill("tempo", "neutral", "Reported");
+    setText("tempo-down-val", f1(md) + " s"); setText("tempo-up-val", f1(mu) + " s");
+    fill("tempo-down", md / TEMPO_S); fill("tempo-up", mu / TEMPO_S);
+    drawTicks();
+  }
+  setText("reps-state", n === 1 ? "1 repetition" : `${n} repetitions`);
+  pill("reps", bad > 0 ? "fault" : "good", bad > 0 ? `${bad} flagged` : "All clear");
+  ["rep-nav", "rep-nav-top"].forEach(id => {
+    $("#" + id).innerHTML = reps.map((r, i) => `<button type="button" class="repdot${faultCount(r) > 0 ? " repdot-fault" : ""}" data-i="${i}" aria-label="Open rep ${esc(repNos[i])}">${esc(repNos[i])}</button>`).join("");
+  });
+  sheet.querySelectorAll(".repdot").forEach(b => b.addEventListener("click", () => { renderRep(reps[+b.dataset.i], true); window.scrollTo(0, 0); }));
+
+  wireCards(k => { setPane = k; select(k); });
+  select(setPane);
+}
+
+document.getElementById("meta-src").innerHTML = D.meta || "";
+const toggle = document.getElementById("show-numbers");
+toggle.addEventListener("change", () => sheet.classList.toggle("no-numbers", !toggle.checked));
+if (D.mode === "rep") renderRep(D.reps[D.rep_index || 0], false); else renderSet();
+})();
+</script>

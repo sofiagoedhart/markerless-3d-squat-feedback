@@ -1,0 +1,49 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/FeedbackUI.uss?fileID=7433441132597879392&amp;guid=991cba515da2c41dcbba9af5d653ee44&amp;type=3#FeedbackUI"/>
+    <ui:VisualElement name="hud" class="hud" style="top: 64px; bottom: 448px; right: -76px; left: 76px;">
+        <ui:VisualElement name="rep-card" class="card rep-card">
+            <ui:Label name="rep-caption" text="REPS" class="card-label"/>
+            <ui:VisualElement class="rep-row">
+                <ui:Label name="rep-count" text="0" class="rep-count"/>
+                <ui:Label name="rep-of" text="of 8" class="rep-of"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="rep-pips" class="pips"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="depth-card" class="card depth-card">
+            <ui:VisualElement class="depth-head">
+                <ui:Label text="DEPTH" class="card-label"/>
+                <ui:Label name="target-name" text="PARALLEL" class="chip"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="depth-body">
+                <ui:VisualElement class="depth-ticks depth-ticks--left">
+                    <ui:Label text="Standing" class="tick tick-top" />
+                    <ui:Label name="depth-target-tick" text="Target" class="tick tick-target" />
+                    <ui:Label text="Deeper" class="tick tick-bottom" />
+                </ui:VisualElement>
+                <ui:VisualElement name="depth-track" class="depth-track">
+                    <ui:VisualElement name="depth-fill" class="depth-fill" />
+                    <ui:VisualElement name="depth-band" class="depth-band" />
+                    <ui:VisualElement name="depth-marker" class="depth-marker" />
+                </ui:VisualElement>  
+                <ui:VisualElement class="depth-ticks depth-ticks--right">
+                    <ui:Label name="depth-you" text="You" class="tick-you" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="cue-card" class="card cue-card hidden">
+            <ui:VisualElement class="cue-icon">
+                <ui:Label text="!" class="cue-icon__mark"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="cue-body-block">
+                <ui:Label name="cue-title" text="Left knee is caving inward" class="cue-title"/>
+                <ui:Label name="cue-body" text="Push the knee out so it points the same way as your left toes." class="cue-body"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="countdown-card" class="card countdown-card hidden">
+            <ui:Label text="SET STARTS IN" class="card-label"/>
+            <ui:Label name="countdown-num" text="6" class="countdown-num"/>
+            <ui:Label text="Hold your stance" class="countdown-sub"/>
+        </ui:VisualElement>
+        <ui:Label name="diagnostics" text="" class="diagnostics hidden"/>
+    </ui:VisualElement>
+</ui:UXML>
