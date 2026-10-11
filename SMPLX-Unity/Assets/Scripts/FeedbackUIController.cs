@@ -127,7 +127,7 @@ public class FeedbackUIController : MonoBehaviour
         if (_status != null)
             _status.text = live
                 ? $"connected · {receiver.PacketCount} packets · H hides the overlay, D shows numbers"
-                : "waiting for pose stream on UDP 5006 — run:  python src/replay_to_unity.py";
+                : "waiting for pose stream on UDP 5006 — run:  python src/live_form_feedback.py 0 1 2 --stream --unity-setup";
         bool tracking = live && receiver.Latest != null
                         && receiver.Latest["present"].AsInt != 0;
         if (!tracking) { ShowLost(); return; }

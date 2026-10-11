@@ -12,8 +12,8 @@ the live, post-repetition and post-set feedback screens. A session report is exp
 
 | Folder | Contents |
 |---|---|
-| `src/` | The Python system: calibration, triangulation, smoothing, measurement, the repetition engine, the Unity stream, recording and replay, and the analysis scripts behind the thesis results. |
-| `tools/` | Report and review-page generators, figure scripts and small utilities. |
+| `src/` | The Python system: calibration, triangulation, smoothing, measurement, the repetition engine, the Unity stream, recording and set export, and unit tests. |
+| `tools/` | Session report and review-page generators, and the avatar asset tools (texture recolouring, fist pose). |
 | `SMPLX-Unity/Assets/Scripts/` | The Unity application: pose driving, screen flow, the live, post-rep and post-set screens, the setup guide and the carried barbell. |
 | `SMPLX-Unity/Assets/UI/` | Screen layouts (UXML) and styles (USS). |
 | `SMPLX-Unity/Assets/Editor/` | Editor tools: gym room builder, avatar recolouring, fist setup. |
@@ -64,16 +64,10 @@ python src/calib_health.py 0 1 2            # start-of-session check
 python src/live_form_feedback.py 0 1 2 --stream --unity-setup
 ```
 
-Add `--record recordings` to save each set for replay. Each completed set is saved under
+Add `--record recordings` to also save each set's raw recording. Each completed set is saved under
 `results/sets/<session>/` and the session report is written to `results/sets/<session>/report.html`.
 
-**3. Without cameras.** Replay a recording through the full pipeline into Unity:
-
-```bash
-python src/replay_to_unity.py --file recordings/<session>/<set>.npz
-```
-
-**4. Reports and review pages.**
+**3. Reports and review pages.**
 
 ```bash
 python tools/report_session.py results/sets/<session>              # session report
@@ -81,14 +75,11 @@ python tools/export_review_html.py results/sets/<session>/<set>.json --mode set 
 python tools/export_review_html.py results/sets/<session>/<set>.json --mode rep --rep 1
 ```
 
-**5. Tests.**
+**4. Tests.**
 
 ```bash
-cd src && python test_rep_engine.py && python test_pose_to_unity.py && python test_setup_stream.py
+cd src && python test_rep_engine.py && python test_setup_stream.py
 ```
-
-`src/synthetic_squat.py` generates a plausible squat, so the engine and the stream can be tested
-with no rig at all.
 
 ## Unity setup
 
@@ -126,4 +117,3 @@ Python streams to Unity on UDP port 5006; Unity sends settings back on port 5007
 | `pose_to_unity.py` | Converts the skeleton to avatar segment rotations and streams state and reps. |
 | `control_listener.py` | Receives settings and Start / End set from Unity. |
 | `session_io.py`, `set_export.py` | Recordings and saved set results. |
-| `replay_to_unity.py` | Runs a recording through the same pipeline with no cameras. |

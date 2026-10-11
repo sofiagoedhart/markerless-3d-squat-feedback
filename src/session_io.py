@@ -123,28 +123,3 @@ def meta_from_body_frame(frame: M.BodyFrame) -> dict:
     return {"up": [float(x) for x in frame.up],
             "lateral": [float(x) for x in frame.lateral],
             "forward": [float(x) for x in frame.forward]}
-
-
-if __name__ == "__main__":
-    from synthetic_squat import make_session
-    frames = make_session()
-    fr = M.calibrate_body_frame([kp for kp, _ in frames[:25]])
-    r = SessionRecorder("/tmp/_sess_test.npz",
-                        meta={"body_frame": meta_from_body_frame(fr), "note": "self-test"})
-    rng = np.random.default_rng(0)
-    for kp, t in frames:
-        r.add(kp, t,
-              raw=kp + rng.normal(0, 2.0, np.shape(kp)),
-              pts=np.zeros((3, 17, 2), np.float32),
-              conf=np.ones((3, 17), np.float32))
-    r.save()
-    back, meta = load_session("/tmp/_sess_test.npz")
-    assert len(back) == len(frames)
-    assert np.allclose(back[0][0], frames[0][0], atol=1e-2, equal_nan=True)
-    assert body_frame_from_meta(meta) is not None
-    A = load_session_arrays("/tmp/_sess_test.npz")
-    assert A["kp_raw"].shape == A["kp"].shape
-    assert A["pts2d"].shape[1:] == (3, 17, 2) and A["conf"].shape[1:] == (3, 17)
-    assert not np.allclose(A["kp_raw"], A["kp"], equal_nan=True)
-    print(f"OK — {len(back)} frames round-tripped, "
-          f"{os.path.getsize('/tmp/_sess_test.npz')/1024:.1f} kB on disk")

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class ControlSender : MonoBehaviour
 {
-    [Tooltip("Where replay_to_unity.py / live_form_feedback.py listen (--control-port).")]
+    [Tooltip("Where live_form_feedback.py listens (--control-port).")]
     public int port = 5007;
     public string host = "127.0.0.1";
     public bool logSends = true;
