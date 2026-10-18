@@ -24,7 +24,7 @@
                     <ui:VisualElement name="depth-fill" class="depth-fill" />
                     <ui:VisualElement name="depth-band" class="depth-band" />
                     <ui:VisualElement name="depth-marker" class="depth-marker" />
-                </ui:VisualElement>  
+                </ui:VisualElement>
                 <ui:VisualElement class="depth-ticks depth-ticks--right">
                     <ui:Label name="depth-you" text="You" class="tick-you" />
                 </ui:VisualElement>
@@ -45,5 +45,44 @@
             <ui:Label text="Hold your stance" class="countdown-sub"/>
         </ui:VisualElement>
         <ui:Label name="diagnostics" text="" class="diagnostics hidden"/>
+        <ui:VisualElement name="traj-panel" class="traj-panel hidden">
+            <ui:VisualElement class="traj-head">
+                <ui:Label text="DEPTH" class="card-label"/>
+                <ui:Label name="traj-target" text="PARALLEL" class="chip traj-head-chip"/>
+                <ui:Label name="traj-complete" text="SET COMPLETE" class="chip traj-head-chip traj-done hidden"/>
+                <ui:VisualElement class="traj-spacer"/>
+                <ui:VisualElement class="traj-key">
+                    <ui:VisualElement class="traj-key-item">
+                        <ui:VisualElement class="traj-swatch traj-swatch--on"/>
+                        <ui:Label text="On target" class="traj-key-label"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="traj-key-item">
+                        <ui:VisualElement class="traj-swatch traj-swatch--shallow"/>
+                        <ui:Label text="Not deep enough" class="traj-key-label"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="traj-key-past" class="traj-key-item">
+                        <ui:VisualElement class="traj-swatch traj-swatch--past"/>
+                        <ui:Label text="Deeper than target" class="traj-key-label"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="traj-body">
+                <ui:VisualElement class="traj-yaxis">
+                    <ui:Label name="traj-y-stand" text="Standing" class="traj-ytick"/>
+                    <ui:Label name="traj-y-target" text="Target" class="traj-ytick traj-ytick--target"/>
+                    <ui:Label text="Deeper" class="traj-ytick traj-ytick--bottom"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="traj-main">
+                    <ui:VisualElement name="traj-plot" class="traj-plot">
+                        <ui:VisualElement name="traj-slots" class="traj-layer"/>
+                        <ui:VisualElement name="traj-band" class="traj-band"/>
+                        <ui:VisualElement name="traj-lines" class="traj-layer"/>
+                        <ui:VisualElement name="traj-dots" class="traj-layer"/>
+                        <ui:VisualElement name="traj-live" class="traj-live hidden"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="traj-labels" class="traj-labels"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

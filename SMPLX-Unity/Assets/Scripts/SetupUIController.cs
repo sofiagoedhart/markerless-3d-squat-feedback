@@ -14,6 +14,9 @@ public class SetupUIController : MonoBehaviour
     Button _avatarF, _avatarM;
     Label _repCount, _startTitle, _startMsg, _status;
     Toggle _reviewRep, _reviewSet, _numbers, _depth, _repCountToggle, _guideToggle;
+    Button _depthBar, _depthTraj;
+    VisualElement _depthStyle;
+    Label _depthHelp;
     Button _minus, _plus, _gear, _close, _start, _resetCount;
     Label _setCountHelp;
     ScreenFlowController _flow;
@@ -74,7 +77,11 @@ public class SetupUIController : MonoBehaviour
         _reviewRep      = Get<Toggle>("set-review-rep");
         _reviewSet      = Get<Toggle>("set-review-set");
         _numbers        = Get<Toggle>("set-numbers");
+        _depthBar       = Get<Button>("set-depth-bar");
+        _depthTraj      = Get<Button>("set-depth-traj");
         _depth          = Get<Toggle>("set-depth");
+        _depthStyle     = Get<VisualElement>("set-depth-style");
+        _depthHelp      = Get<Label>("set-depth-help");
         _repCountToggle = Get<Toggle>("set-repcount");
         _guideToggle    = Get<Toggle>("set-guide");
         _stepper        = Get<VisualElement>("rep-stepper");
@@ -115,6 +122,10 @@ public class SetupUIController : MonoBehaviour
             _avatarM.clicked += () => SessionSettings.AvatarChoice = SessionSettings.Avatar.Male;
         if (_numbers != null) _numbers.RegisterValueChangedCallback(e => SessionSettings.ShowNumbers = e.newValue);
         if (_depth != null) _depth.RegisterValueChangedCallback(e => SessionSettings.ShowDepthMargin = e.newValue);
+        if (_depthBar != null)
+            _depthBar.clicked += () => SessionSettings.DepthStyle = SessionSettings.LiveDepth.Bar;
+        if (_depthTraj != null)
+            _depthTraj.clicked += () => SessionSettings.DepthStyle = SessionSettings.LiveDepth.Trajectory;
         if (_repCountToggle != null) _repCountToggle.RegisterValueChangedCallback(e => SessionSettings.ShowRepCount = e.newValue);
         if (_guideToggle != null) _guideToggle.RegisterValueChangedCallback(e => SessionSettings.ShowSetupGuide = e.newValue);
 
@@ -161,6 +172,14 @@ public class SetupUIController : MonoBehaviour
         }
     }
 
+    /// The help line under the live depth display choice.
+    static string DepthHelp(SessionSettings.LiveDepth m)
+    {
+        return m == SessionSettings.LiveDepth.Trajectory
+            ? "A live chart traces every rep against your target band."
+            : "A vertical bar shows how close you are to your target depth right now.";
+    }
+
     /// Redraws everything that comes from settings rather than from the stream.
     void Refresh()
     {
@@ -177,7 +196,12 @@ public class SetupUIController : MonoBehaviour
         if (_reviewRep != null) _reviewRep.SetValueWithoutNotify(SessionSettings.ReviewEachRep);
         if (_reviewSet != null) _reviewSet.SetValueWithoutNotify(SessionSettings.ReviewEachSet);
         if (_numbers != null) _numbers.SetValueWithoutNotify(SessionSettings.ShowNumbers);
+        var style = SessionSettings.DepthStyle;
         if (_depth != null) _depth.SetValueWithoutNotify(SessionSettings.ShowDepthMargin);
+        _depthStyle?.EnableInClassList("hidden", !SessionSettings.ShowDepthMargin);
+        _depthBar?.EnableInClassList("chip--on", style == SessionSettings.LiveDepth.Bar);
+        _depthTraj?.EnableInClassList("chip--on", style == SessionSettings.LiveDepth.Trajectory);
+        if (_depthHelp != null) _depthHelp.text = DepthHelp(style);
         if (_repCountToggle != null) _repCountToggle.SetValueWithoutNotify(SessionSettings.ShowRepCount);
         if (_guideToggle != null) _guideToggle.SetValueWithoutNotify(SessionSettings.ShowSetupGuide);
         bool male = SessionSettings.AvatarChoice == SessionSettings.Avatar.Male;

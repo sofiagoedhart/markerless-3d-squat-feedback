@@ -15,6 +15,7 @@ public static class SessionSettings
     const string K_AVATAR = "sk.avatar";
     const string K_CLOTH  = "sk.clothing";
     const string K_GUIDE  = "sk.showSetupGuide";
+    const string K_LIVE   = "sk.liveDepth";
 
     /// What the athlete stops to read.
     public enum Review { PerRep = 1, PerSet = 2 }
@@ -22,11 +23,15 @@ public static class SessionSettings
     /// Which character is displayed.
     public enum Avatar { Female = 1, Male = 2 }
 
+    /// What the live screen shows for depth; Off is ShowDepthMargin switched off, never a stored style.
+    public enum LiveDepth { Bar = 1, Trajectory = 2, Off = 3 }
+
     static string _target;
     static int _reps;
     static Review _review;
     static bool _numbers, _depth, _repCount, _guide;
     static Avatar _avatar;
+    static LiveDepth _live;
     static int _cloth;
     static bool _loaded;
 
@@ -44,6 +49,13 @@ public static class SessionSettings
         _depth   = PlayerPrefs.GetInt(K_DEPTH, 1) == 1;
         _repCount = PlayerPrefs.GetInt(K_RCOUNT, 1) == 1;
         _guide    = PlayerPrefs.GetInt(K_GUIDE, 1) == 1;
+        int ld = PlayerPrefs.GetInt(K_LIVE, 0);
+        _live = ld == (int)LiveDepth.Trajectory ? LiveDepth.Trajectory : LiveDepth.Bar;
+        if (ld == (int)LiveDepth.Off)
+        {
+            _depth = false;
+            PlayerPrefs.SetInt(K_DEPTH, 0); PlayerPrefs.SetInt(K_LIVE, (int)LiveDepth.Bar); PlayerPrefs.Save();
+        }
         int av = PlayerPrefs.GetInt(K_AVATAR, (int)Avatar.Female);
         _avatar = (av == (int)Avatar.Male) ? Avatar.Male : Avatar.Female;
         _cloth = Mathf.Max(0, PlayerPrefs.GetInt(K_CLOTH, 0));
@@ -134,6 +146,22 @@ public static class SessionSettings
         get { Load(); return _depth; }
         set { Load(); if (value == _depth) return; _depth = value; Save(K_DEPTH, value ? 1 : 0); }
     }
+
+    /// How live depth is drawn when it is shown: the depth bar or the trajectory chart.
+    public static LiveDepth DepthStyle
+    {
+        get { Load(); return _live; }
+        set
+        {
+            Load();
+            if (value != LiveDepth.Bar && value != LiveDepth.Trajectory) return;
+            if (value == _live) return;
+            _live = value; Save(K_LIVE, (int)value);
+        }
+    }
+
+    /// What the live screen draws: Off when live depth is switched off, otherwise the chosen style.
+    public static LiveDepth LiveDepthMode => ShowDepthMargin ? DepthStyle : LiveDepth.Off;
 
     public static bool ShowRepCount
     {

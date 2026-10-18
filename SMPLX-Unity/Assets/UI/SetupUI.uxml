@@ -38,7 +38,6 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-
         <ui:VisualElement name="start-card" class="card start hidden">
             <ui:VisualElement class="start-text">
                 <ui:Label name="start-title" text="Get into position" class="start-title" />
@@ -97,6 +96,17 @@
                     <ui:Label text="See how close you are to your target depth while you squat." class="setting-help" />
                 </ui:VisualElement>
                 <ui:Toggle name="set-depth" class="switch" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="set-depth-style" class="setting setting-stack">
+                <ui:VisualElement class="setting-text">
+                    <ui:Label text="Live depth display" class="setting-name" />
+                    <ui:Label name="set-depth-help" text="" class="setting-help" />
+                </ui:VisualElement>
+                <ui:VisualElement class="chips chips-stack">
+                    <ui:Button name="set-depth-bar" text="Depth bar" class="chip" />
+                    <ui:Button name="set-depth-traj" text="Trajectory" class="chip" />
+                </ui:VisualElement>
             </ui:VisualElement>
 
             <ui:VisualElement class="setting">

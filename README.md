@@ -14,7 +14,7 @@ the live, post-repetition and post-set feedback screens. A session report is exp
 |---|---|
 | `src/` | The Python system: calibration, triangulation, smoothing, measurement, the repetition engine, the Unity stream, recording and set export, and unit tests. |
 | `tools/` | Session report and review-page generators, and the avatar asset tools (texture recolouring, fist pose). |
-| `SMPLX-Unity/Assets/Scripts/` | The Unity application: pose driving, screen flow, the live, post-rep and post-set screens, the setup guide and the carried barbell. |
+| `SMPLX-Unity/Assets/Scripts/` | The Unity application: pose driving, screen flow, the live screen (depth bar or live depth trajectory), the post-rep and post-set screens, the setup guide and the carried barbell. |
 | `SMPLX-Unity/Assets/UI/` | Screen layouts (UXML) and styles (USS). |
 | `SMPLX-Unity/Assets/Editor/` | Editor tools: gym room builder, avatar recolouring, fist setup. |
 | `SMPLX-Unity/Packages/`, `ProjectSettings/` | Unity project configuration (Unity 6000.5.0f1). |

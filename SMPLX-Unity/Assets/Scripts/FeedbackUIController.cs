@@ -24,6 +24,18 @@ public class FeedbackUIController : MonoBehaviour
     public string lostTitle = "Tracking lost";
     public string lostBody = "Step back into view of all three cameras.";
 
+    [Header("Depth trajectory (split screen)")]
+    [Tooltip("Camera whose viewport is shrunk to the top of the screen. Empty = Camera.main.")]
+    public Camera splitCamera;
+    [Range(0.2f, 0.5f)]
+    [Tooltip("Fraction of the screen height given to the chart below the gym view.")]
+    public float splitFraction = 0.36f;
+    public float chartTopMm = 470f;
+    public float chartBottomMm = -80f;
+    [Tooltip("Samples a rep slot holds before it starts compressing (about 10 per second).")]
+    public int repSlotSamples = 32;
+    public Color traceColor = new Color(0.165f, 0.471f, 0.839f);
+
     [Header("Keys")]
     public KeyCode toggleDiagnostics = KeyCode.D;
     public KeyCode toggleUI = KeyCode.H;
@@ -36,6 +48,8 @@ public class FeedbackUIController : MonoBehaviour
     Label _repCaption, _repCount, _repOf, _targetName, _you, _targetTick,
           _cueTitle, _cueBody, _phase, _status, _diag;
 
+    readonly LiveDepthChart _chart = new LiveDepthChart();
+    ScreenFlowController _flow;
     int _pipCount = -1;
     float _cueUntil = -1f;
     bool _diagOn;
@@ -44,6 +58,25 @@ public class FeedbackUIController : MonoBehaviour
     {
         _doc = GetComponent<UIDocument>();
         if (receiver == null) receiver = FindAnyObjectByType<PoseUdpReceiver>();
+        if (_flow == null) _flow = FindAnyObjectByType<ScreenFlowController>();
+        _chart.Reset();
+    }
+
+    void OnDisable()
+    {
+        ApplySplit(false);
+        _chart.Reset();
+    }
+
+    /// Gives the camera the top of the screen and the chart the bottom, or the camera the whole screen.
+    void ApplySplit(bool on)
+    {
+        var cam = splitCamera != null ? splitCamera : Camera.main;
+        if (cam == null) return;
+        float f = Mathf.Clamp(splitFraction, 0.2f, 0.5f);
+        Rect want = on ? new Rect(0f, f, 1f, 1f - f) : new Rect(0f, 0f, 1f, 1f);
+        if (cam.rect != want) { cam.rect = want; cam.ResetAspect(); }
+        if (_chart.Panel != null) _chart.Panel.style.height = Length.Percent(f * 100f);
     }
 
     T Get<T>(string name) where T : VisualElement
@@ -94,6 +127,7 @@ public class FeedbackUIController : MonoBehaviour
         _phase      = Get<Label>("phase");
         _status     = Get<Label>("status");
         _diag       = Get<Label>("diagnostics");
+        _chart.Bind(_root);
         Debug.Log("[FeedbackUI] bound to the visual tree.");
         return true;
     }
@@ -117,6 +151,14 @@ public class FeedbackUIController : MonoBehaviour
     {
         if (!Bind()) return;
         BuildPips();
+
+        var depthMode = SessionSettings.LiveDepthMode;
+        bool traj = depthMode == SessionSettings.LiveDepth.Trajectory;
+        bool onLive = _flow == null || _flow.Current == ScreenFlowController.Screen.Live;
+        Show(_chart.Panel, traj && onLive);
+        ApplySplit(traj && onLive);
+        _chart.topMm = chartTopMm; _chart.bottomMm = chartBottomMm;
+        _chart.slotSamples = Mathf.Max(4, repSlotSamples); _chart.traceColor = traceColor;
 
         if (Input.GetKeyDown(toggleUI))
             _root.style.display = _root.style.display == DisplayStyle.None
@@ -153,7 +195,8 @@ public class FeedbackUIController : MonoBehaviour
         _repCard?.EnableInClassList("complete", complete);
 
         Show(_repCard, SessionSettings.ShowRepCount);
-        Show(_depthCard, SessionSettings.ShowDepthMargin);
+        Show(_depthCard, depthMode == SessionSettings.LiveDepth.Bar);
+        if (traj) _chart.Tick(receiver, st, repTarget);
         if (_repCaption != null) _repCaption.text = complete ? "SET TARGET REACHED" : "REPS";
 
         if (_phase != null) _phase.text = PhaseWord(st["phase"].Value);
@@ -197,6 +240,7 @@ public class FeedbackUIController : MonoBehaviour
     {
         Show(_marker, false); Show(_you, false); Show(_fill, false);
         Show(_countCard, false);
+        _chart.HideLive();
         if (_cueTitle != null) _cueTitle.text = lostTitle;
         if (_cueBody != null) _cueBody.text = lostBody;
         Show(_cueCard, true);
