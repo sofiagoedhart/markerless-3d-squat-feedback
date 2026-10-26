@@ -32,8 +32,8 @@ public class FeedbackUIController : MonoBehaviour
     public float splitFraction = 0.36f;
     public float chartTopMm = 470f;
     public float chartBottomMm = -80f;
-    [Tooltip("Samples a rep slot holds before it starts compressing (about 10 per second).")]
-    public int repSlotSamples = 32;
+    [Tooltip("Seconds of history the trajectory shows; it scrolls once this fills.")]
+    public float chartWindowSeconds = 15f;
     public Color traceColor = new Color(0.165f, 0.471f, 0.839f);
 
     [Header("Keys")]
@@ -158,7 +158,7 @@ public class FeedbackUIController : MonoBehaviour
         Show(_chart.Panel, traj && onLive);
         ApplySplit(traj && onLive);
         _chart.topMm = chartTopMm; _chart.bottomMm = chartBottomMm;
-        _chart.slotSamples = Mathf.Max(4, repSlotSamples); _chart.traceColor = traceColor;
+        _chart.windowSeconds = Mathf.Max(3f, chartWindowSeconds); _chart.traceColor = traceColor;
 
         if (Input.GetKeyDown(toggleUI))
             _root.style.display = _root.style.display == DisplayStyle.None

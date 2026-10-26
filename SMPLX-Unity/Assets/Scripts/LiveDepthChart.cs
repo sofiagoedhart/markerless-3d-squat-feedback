@@ -7,29 +7,39 @@ public class LiveDepthChart
 {
     public float topMm = 470f;
     public float bottomMm = -80f;
-    public int slotSamples = 32;
-    public float narrowSlotPx = 120f;
+    public float windowSeconds = 15f;
+    public float tickSeconds = 5f;
+    public float rightPad = 0.075f;
+    public float narrowRepPx = 120f;
     public Color traceColor = new Color(0.165f, 0.471f, 0.839f);
     public Color standColor = new Color(0.043f, 0.043f, 0.043f, 0.28f);
+    public Color gridColor = new Color(0.043f, 0.043f, 0.043f, 0.10f);
 
-    const int LeadMax = 10;
+    const float GapSeconds = 0.6f;
+    const float GuessRepSeconds = 3f;
     static readonly string[] Mods = { "on", "shallow", "past", "unmeasured", "current" };
 
-    VisualElement _panel, _plot, _slots, _labels, _dots, _band, _live, _done, _keyPast;
+    class Span
+    {
+        public int n;
+        public float t0, t1 = float.NaN;
+        public string mod = "current";
+        public VisualElement slot, col, dot;
+        public Label rep, chip;
+    }
+
+    VisualElement _panel, _plot, _slots, _labels, _dots, _band, _live, _done, _keyPast, _ticks;
     Label _target, _yStand, _yTarget;
     PaintElement _paint;
 
-    readonly List<VisualElement> _slotEls = new List<VisualElement>();
-    readonly List<VisualElement> _dotEls = new List<VisualElement>();
-    readonly List<Label> _repEls = new List<Label>();
-    readonly List<Label> _chipEls = new List<Label>();
-    readonly List<float> _current = new List<float>();
-    readonly List<float> _lead = new List<float>();
-    readonly Dictionary<int, List<float>> _leadIns = new Dictionary<int, List<float>>();
+    readonly List<Vector2> _samples = new List<Vector2>();
+    readonly List<Span> _spans = new List<Span>();
+    readonly List<Label> _tickEls = new List<Label>();
 
-    int _slotCount = -1, _lastPacket = -1, _seenReps = 0;
-    bool _inRep, _armed = true;
-    float _standMm = float.NaN;
+    int _lastPacket = -1, _seenReps = 0;
+    bool _armed = true, _frozen, _haveDm;
+    float _tStart = float.NaN, _tFrozen = float.NaN, _standMm = float.NaN, _dm = float.NaN;
+    Span _open;
 
     public VisualElement Panel => _panel;
 
@@ -61,18 +71,34 @@ public class LiveDepthChart
             _paint.style.left = 0; _paint.style.top = 0; _paint.style.right = 0; _paint.style.bottom = 0;
             host.Add(_paint);
         }
-        _slotCount = -1;
+        _slots?.Clear(); _labels?.Clear(); _dots?.Clear();
+        if (_labels != null) _labels.style.overflow = Overflow.Hidden;
+
+        _tickEls.Clear();
+        _ticks = null;
+        if (_plot != null)
+        {
+            _ticks = new VisualElement();
+            _ticks.AddToClassList("traj-layer");
+            _ticks.pickingMode = PickingMode.Ignore;
+            _plot.Add(_ticks);
+        }
+        foreach (var s in _spans) MakeEls(s);
         _lastPacket = -1;
     }
 
     /// Forgets the set in progress, for a new set or a fresh live screen.
     public void Reset()
     {
-        _current.Clear();
-        _lead.Clear();
-        _leadIns.Clear();
-        _inRep = false;
+        foreach (var s in _spans) DropEls(s);
+        _spans.Clear();
+        _samples.Clear();
+        _open = null;
         _armed = true;
+        _frozen = false;
+        _haveDm = false;
+        _tStart = float.NaN;
+        _tFrozen = float.NaN;
         _seenReps = 0;
         _lastPacket = -1;
     }
@@ -84,80 +110,67 @@ public class LiveDepthChart
     public void Tick(PoseUdpReceiver rx, JSONNode st, int target)
     {
         if (_panel == null || _plot == null || rx == null || st == null) return;
-        BuildSlots(Mathf.Max(1, target));
+        target = Mathf.Max(1, target);
 
         int reps = rx.SetReps.Count;
         if (reps < _seenReps) Reset();
-        if (reps > _seenReps) { _current.Clear(); _lead.Clear(); _inRep = false; _armed = false; }
-        _seenReps = reps;
 
-        if (rx.PacketCount == _lastPacket && _lastPacket >= 0) return;
-        _lastPacket = rx.PacketCount;
-
-        bool haveDm = st["depth_mm"] != null && !st["depth_mm"].IsNull;
-        float dm = haveDm ? st["depth_mm"].AsFloat : float.NaN;
-        bool setup = st["phase"].Value == "SETUP";
-        if (setup)
+        if (rx.PacketCount != _lastPacket || _lastPacket < 0)
         {
-            if (_inRep) { _lead.AddRange(_current); _current.Clear(); _inRep = false; }
-            _armed = true;
-            if (haveDm) _standMm = float.IsNaN(_standMm) ? dm : Mathf.Lerp(_standMm, dm, 0.1f);
+            _lastPacket = rx.PacketCount;
+            Ingest(rx, st, reps, target, Time.unscaledTime);
         }
-        else if (_armed && !_inRep)
+        Redraw(st);
+    }
+
+    void Ingest(PoseUdpReceiver rx, JSONNode st, int reps, int target, float now)
+    {
+        if (float.IsNaN(_tStart)) _tStart = now;
+
+        for (int i = _seenReps; i < reps; i++)
         {
-            _leadIns[reps] = new List<float>(_lead);
-            _current.Clear();
-            _inRep = true;
+            Span s = _open;
+            if (s == null)
+            {
+                float prev = _spans.Count > 0 ? _spans[_spans.Count - 1].t1 : _tStart;
+                s = NewSpan(Mathf.Max(prev, now - GuessRepSeconds));
+            }
+            s.t1 = now;
+            s.n = i + 1;
+            s.mod = Verdict(rx.SetReps[i]);
+            _open = null;
             _armed = false;
         }
-        if (haveDm)
+        _seenReps = reps;
+
+        _haveDm = st["depth_mm"] != null && !st["depth_mm"].IsNull;
+        _dm = _haveDm ? st["depth_mm"].AsFloat : float.NaN;
+
+        if (st["phase"].Value == "SETUP")
         {
-            if (_inRep) _current.Add(dm);
-            else _lead.Add(dm);
+            _armed = true;
+            if (_haveDm) _standMm = float.IsNaN(_standMm) ? _dm : Mathf.Lerp(_standMm, _dm, 0.1f);
         }
-        if (_lead.Count > LeadMax) _lead.RemoveRange(0, _lead.Count - LeadMax);
-        Redraw(rx, st, haveDm, dm);
+        else if (_armed && _open == null && !_frozen)
+        {
+            _open = NewSpan(now);
+            _open.n = reps + 1;
+            _armed = false;
+        }
+
+        if (_haveDm && !_frozen) _samples.Add(new Vector2(now, _dm));
+        if (!_frozen && reps >= target) { _frozen = true; _tFrozen = now; }
+
+        float keep = now - windowSeconds - 2f;
+        int drop = 0;
+        while (drop < _samples.Count - 1 && _samples[drop + 1].x < keep) drop++;
+        if (drop > 0) _samples.RemoveRange(0, drop);
+        for (int i = _spans.Count - 1; i >= 0; i--)
+            if (!float.IsNaN(_spans[i].t1) && _spans[i].t1 < keep) { DropEls(_spans[i]); _spans.RemoveAt(i); }
     }
 
-    void BuildSlots(int n)
+    void Redraw(JSONNode st)
     {
-        if (n == _slotCount && _slotEls.Count == n) return;
-        _slotCount = n;
-        _slots?.Clear(); _labels?.Clear(); _dots?.Clear();
-        _slotEls.Clear(); _repEls.Clear(); _chipEls.Clear(); _dotEls.Clear();
-        for (int i = 0; i < n; i++)
-        {
-            var slot = new VisualElement();
-            slot.AddToClassList("traj-slot");
-            slot.style.left = Length.Percent(100f * i / n);
-            slot.style.width = Length.Percent(100f / n);
-            slot.pickingMode = PickingMode.Ignore;
-            _slots?.Add(slot);
-            _slotEls.Add(slot);
-
-            var col = new VisualElement();
-            col.AddToClassList("traj-col");
-            col.style.left = Length.Percent(100f * i / n);
-            col.style.width = Length.Percent(100f / n);
-            var rep = new Label();
-            rep.AddToClassList("traj-rep");
-            var chip = new Label();
-            chip.AddToClassList("traj-chip");
-            col.Add(rep); col.Add(chip);
-            _labels?.Add(col);
-            _repEls.Add(rep); _chipEls.Add(chip);
-
-            var dot = new VisualElement();
-            dot.AddToClassList("traj-dot");
-            dot.pickingMode = PickingMode.Ignore;
-            _dots?.Add(dot);
-            _dotEls.Add(dot);
-        }
-    }
-
-    void Redraw(PoseUdpReceiver rx, JSONNode st, bool haveDm, float dm)
-    {
-        int n = _slotCount;
         JSONNode tgt = st["depth_target"];
         bool haveTgt = tgt != null && !tgt.IsNull && tgt["hi"] != null && !tgt["hi"].IsNull;
         bool openLo = haveTgt && (tgt["lo"] == null || tgt["lo"].IsNull);
@@ -186,105 +199,163 @@ public class LiveDepthChart
                 points = new[] { new Vector2(0f, ys), new Vector2(1f, ys) },
                 color = standColor, width = 2f, dashed = true });
 
-        float plotW = _plot.contentRect.width;
-        bool narrow = plotW > 1f && plotW / n < narrowSlotPx;
-        int done = Mathf.Min(rx.SetReps.Count, n);
-        Vector2 liveAt = new Vector2((float)done / n, haveDm ? Y(dm) : ys);
-        var line = new List<Vector2>();
+        if (float.IsNaN(_tStart)) { Show(_live, false); Show(_done, false); return; }
 
-        for (int i = 0; i < n; i++)
+        float lastT = _samples.Count > 0 ? _samples[_samples.Count - 1].x : _tStart;
+        float tNow = _frozen ? _tFrozen : Mathf.Min(Time.unscaledTime, lastT + 0.15f);
+        float span = SpanSeconds();
+        float tRight = Mathf.Max(_tStart + span, tNow + rightPad * span);
+        float tLeft = tRight - span;
+
+        DrawTicks(tLeft, tRight);
+
+        var seg = new List<Vector2>();
+        float prevT = float.NaN;
+        foreach (var s in _samples)
         {
-            string mod = null;
-            var rep = _repEls[i];
-            var chip = _chipEls[i];
-            var dot = _dotEls[i];
-            rep.text = narrow ? (i + 1).ToString() : "Rep " + (i + 1);
-
-            if (i < done)
-            {
-                JSONNode r = rx.SetReps[i];
-                mod = Verdict(r);
-                List<float> vals = LeadIn(i);
-                vals.AddRange(Values(r["trace"]));
-                if (vals.Count >= 2)
-                {
-                    Vector2[] pts = SlotPath(i, n, vals, true);
-                    line.AddRange(pts);
-                    Vector2 low = pts[0];
-                    foreach (var p in pts) if (p.y > low.y) low = p;
-                    dot.style.left = Length.Percent(low.x * 100f);
-                    dot.style.top = Length.Percent(low.y * 100f);
-                    Show(dot, true);
-                }
-                else Show(dot, false);
-                chip.text = narrow ? "" : ChipText(mod);
-                SetMod(chip, "traj-chip--", mod);
-                SetMod(dot, "traj-dot--", mod);
-                chip.EnableInClassList("traj-chip--dot", narrow);
-                Show(chip, true);
-            }
-            else
-            {
-                Show(dot, false);
-                Show(chip, false);
-                if (i == done)
-                {
-                    mod = "current";
-                    List<float> vals = _inRep ? LeadIn(i) : new List<float>(_lead);
-                    if (_inRep) vals.AddRange(_current);
-                    if (vals.Count >= 1)
-                    {
-                        Vector2[] pts = SlotPath(i, n, vals, false);
-                        line.AddRange(pts);
-                        liveAt = pts[pts.Length - 1];
-                    }
-                }
-            }
-            rep.EnableInClassList("traj-rep--live", i <= done);
-            SetMod(_slotEls[i], "traj-slot--", mod);
+            if (!float.IsNaN(prevT) && s.x - prevT > GapSeconds) { Flush(seg); seg = new List<Vector2>(); }
+            seg.Add(new Vector2(X(s.x, tLeft), Y(s.y)));
+            prevT = s.x;
         }
+        Flush(seg);
 
-        bool complete = done >= n;
-        Show(_done, complete);
-        bool showLive = !complete && haveDm;
-        if (line.Count >= 2)
-            _paint?.Add(new PaintElement.Path { points = line.ToArray(), color = traceColor, width = 4f });
+        float plotW = _plot.contentRect.width;
+        foreach (var s in _spans) PlaceSpan(s, tLeft, tNow, plotW);
+
+        Show(_done, _frozen);
+        bool showLive = !_frozen && _haveDm && _samples.Count > 0;
         Show(_live, showLive);
         if (showLive)
         {
-            _live.style.left = Length.Percent(liveAt.x * 100f);
-            _live.style.top = Length.Percent(liveAt.y * 100f);
-            _live.EnableInClassList("in-band", haveTgt && dm >= lo && dm <= hi);
+            _live.style.left = Length.Percent(X(lastT, tLeft) * 100f);
+            _live.style.top = Length.Percent(Y(_dm) * 100f);
+            _live.EnableInClassList("in-band", haveTgt && _dm >= lo && _dm <= hi);
         }
     }
 
-    /// Maps a slot's samples across it; a finished slot fills it exactly, a live one grows into it.
-    Vector2[] SlotPath(int slot, int n, List<float> vals, bool final)
+    void DrawTicks(float tLeft, float tRight)
     {
-        int c = vals.Count;
-        float denom = final ? Mathf.Max(c - 1, 1) : Mathf.Max(slotSamples + LeadMax, c - 1);
-        var pts = new Vector2[c];
-        for (int k = 0; k < c; k++)
-            pts[k] = new Vector2((slot + Mathf.Min(k / denom, 1f)) / n, Y(vals[k]));
-        return pts;
+        int used = 0;
+        if (_ticks != null && tickSeconds > 0f)
+        {
+            int k0 = Mathf.Max(1, Mathf.CeilToInt((tLeft - _tStart) / tickSeconds));
+            for (int k = k0; _tStart + k * tickSeconds <= tRight; k++)
+            {
+                float x = X(_tStart + k * tickSeconds, tLeft);
+                _paint?.Add(new PaintElement.Path {
+                    points = new[] { new Vector2(x, 0f), new Vector2(x, 1f) },
+                    color = gridColor, width = 1f });
+                if (used == _tickEls.Count)
+                {
+                    var l = new Label();
+                    l.AddToClassList("traj-tick");
+                    l.pickingMode = PickingMode.Ignore;
+                    _ticks.Add(l);
+                    _tickEls.Add(l);
+                }
+                var lab = _tickEls[used++];
+                lab.text = $"{k * tickSeconds:0} s";
+                lab.style.left = Length.Percent(x * 100f);
+                Show(lab, true);
+            }
+        }
+        for (int i = used; i < _tickEls.Count; i++) Show(_tickEls[i], false);
     }
 
-    List<float> LeadIn(int slot)
+    void PlaceSpan(Span s, float tLeft, float tNow, float plotW)
     {
-        List<float> v;
-        return _leadIns.TryGetValue(slot, out v) ? new List<float>(v) : new List<float>();
+        bool open = float.IsNaN(s.t1);
+        float x0 = X(s.t0, tLeft), x1 = X(open ? tNow : s.t1, tLeft);
+        bool visible = x1 > 0f && x1 > x0;
+        Show(s.slot, visible); Show(s.col, visible);
+        if (!visible) { Show(s.dot, false); return; }
+
+        Place(s.slot, x0, x1);
+        Place(s.col, Mathf.Max(x0, 0f), x1);
+        SetMod(s.slot, "traj-slot--", s.mod);
+
+        bool narrow = plotW > 1f && (x1 - x0) * plotW < narrowRepPx;
+        s.rep.text = narrow ? s.n.ToString() : "Rep " + s.n;
+        s.rep.EnableInClassList("traj-rep--live", true);
+
+        if (open)
+        {
+            Show(s.chip, false);
+            Show(s.dot, false);
+            return;
+        }
+        s.chip.text = narrow ? "" : ChipText(s.mod);
+        SetMod(s.chip, "traj-chip--", s.mod);
+        s.chip.EnableInClassList("traj-chip--dot", narrow);
+        Show(s.chip, true);
+
+        bool found = false;
+        Vector2 low = Vector2.zero;
+        foreach (var p in _samples)
+            if (p.x >= s.t0 && p.x <= s.t1 && (!found || p.y < low.y)) { low = p; found = true; }
+        Show(s.dot, found);
+        if (found)
+        {
+            SetMod(s.dot, "traj-dot--", s.mod);
+            s.dot.style.left = Length.Percent(X(low.x, tLeft) * 100f);
+            s.dot.style.top = Length.Percent(Y(low.y) * 100f);
+        }
     }
+
+    Span NewSpan(float t0)
+    {
+        var s = new Span { t0 = t0 };
+        MakeEls(s);
+        _spans.Add(s);
+        return s;
+    }
+
+    void MakeEls(Span s)
+    {
+        s.slot = new VisualElement();
+        s.slot.AddToClassList("traj-slot");
+        s.slot.pickingMode = PickingMode.Ignore;
+        _slots?.Add(s.slot);
+
+        s.col = new VisualElement();
+        s.col.AddToClassList("traj-col");
+        s.rep = new Label();
+        s.rep.AddToClassList("traj-rep");
+        s.chip = new Label();
+        s.chip.AddToClassList("traj-chip");
+        s.col.Add(s.rep); s.col.Add(s.chip);
+        _labels?.Add(s.col);
+
+        s.dot = new VisualElement();
+        s.dot.AddToClassList("traj-dot");
+        s.dot.pickingMode = PickingMode.Ignore;
+        _dots?.Add(s.dot);
+    }
+
+    static void DropEls(Span s)
+    {
+        s.slot?.RemoveFromHierarchy();
+        s.col?.RemoveFromHierarchy();
+        s.dot?.RemoveFromHierarchy();
+    }
+
+    void Flush(List<Vector2> seg)
+    {
+        if (seg.Count >= 2)
+            _paint?.Add(new PaintElement.Path { points = seg.ToArray(), color = traceColor, width = 4f });
+    }
+
+    static void Place(VisualElement e, float x0, float x1)
+    {
+        e.style.left = Length.Percent(x0 * 100f);
+        e.style.width = Length.Percent((x1 - x0) * 100f);
+    }
+
+    float SpanSeconds() => Mathf.Max(windowSeconds, 1f) / (1f - Mathf.Clamp(rightPad, 0f, 0.5f));
+
+    float X(float t, float tLeft) => (t - tLeft) / SpanSeconds();
 
     float Y(float mm) => Mathf.Clamp01((topMm - mm) / Mathf.Max(topMm - bottomMm, 1f));
-
-    static List<float> Values(JSONNode trace)
-    {
-        var v = new List<float>();
-        if (trace == null || trace.IsNull) return v;
-        for (int i = 0; i < trace.Count; i++)
-            if (!trace[i].IsNull) v.Add(trace[i].AsFloat);
-        return v;
-    }
 
     /// The engine's depth verdict for a finished rep, as read by the review screens.
     static string Verdict(JSONNode r)
