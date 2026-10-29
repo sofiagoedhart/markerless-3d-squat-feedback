@@ -1,4 +1,4 @@
-"""Speed-adaptive low-pass smoothing; the default filter, because it cannot overshoot."""
+"""One Euro smoothing of triangulated joints."""
 
 import numpy as np
 
@@ -57,7 +57,7 @@ class OneEuro:
 
 
 class SkeletonOneEuro:
-    """One OneEuro per axis per joint; same interface as SkeletonKalman."""
+    """Smooths a (17, 3) skeleton stream with one OneEuro filter per coordinate."""
 
     def __init__(self, min_cutoff=1.0, beta=0.007, d_cutoff=1.0, n_joints=17,
                  max_coast=2):

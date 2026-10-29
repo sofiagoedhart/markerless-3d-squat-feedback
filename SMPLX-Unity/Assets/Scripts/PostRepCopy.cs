@@ -52,7 +52,7 @@ public static class PostRepCopy
     public const string RepTitle = "Rep {0}";
     public const string Subtitle = "Back squat · Target {0} · Reached {1}";
 
-    /// The engine's depth ids are code, not English.
+    /// The display word for an engine depth id.
     public static string DepthWord(string variation)
     {
         switch (variation)

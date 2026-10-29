@@ -24,7 +24,7 @@ _win = {}
 
 
 def show(win, img, pos=None, width=DISPLAY_WIDTH):
-    """One resizable, movable window per camera; resize/move applied AFTER the first imshow (macOS ignores them beforehand); KEEPRATIO stops stretching."""
+    """Show a camera frame in a resizable window."""
     if win not in _win:
         cv2.namedWindow(win, cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
         if pos is not None:
@@ -106,7 +106,7 @@ def best_person(res):
 
 
 def draw_reprojection(frame, P, joints3d, colour=(0, 255, 0)):
-    """Reproject the 3D joints into this camera and draw them — the self-check."""
+    """Reproject the 3D joints into this camera and draw them."""
     pix = {}
     for j in range(N_JOINTS):
         if np.any(np.isnan(joints3d[j])):

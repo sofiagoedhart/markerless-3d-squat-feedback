@@ -43,7 +43,7 @@ def load_Rt(indices):
 
 
 def plane_normal(pts):
-    """(unit normal, centroid) of the best-fit plane through the 3D corners (NaN rows dropped), or None if too few valid corners."""
+    """Best-fit plane through the 3D corners as (unit normal, centroid), or None if too few corners are valid."""
     p = pts[~np.any(np.isnan(pts), axis=1)]
     if p.shape[0] < 6:
         return None

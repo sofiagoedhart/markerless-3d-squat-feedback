@@ -1,4 +1,4 @@
-"""The pre-calibration setup stream: joints before there is a body frame, the per-camera joint counts, and the handover into the live packet."""
+"""Tests for the setup stream sent to Unity before standing calibration."""
 import json
 import os
 import socket

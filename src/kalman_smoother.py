@@ -1,4 +1,4 @@
-"""Constant-velocity Kalman smoothing of triangulated joints, kept for comparison; one_euro.py is the default."""
+"""Constant-velocity Kalman smoothing of triangulated joints."""
 
 import numpy as np
 
@@ -70,7 +70,7 @@ class JointKalman:
 
 
 class SkeletonKalman:
-    """One JointKalman per COCO joint; smooths a whole (17,3) skeleton stream."""
+    """Smooths a (17, 3) skeleton stream with one JointKalman per joint."""
 
     def __init__(self, process_var=8.0, measurement_var=1e-4, n_joints=N_JOINTS):
         self.filters = [JointKalman(process_var, measurement_var)
@@ -124,16 +124,12 @@ def _self_test():
 
     keep = ~dropout
     print(f"\nframes                : {T}  @ {fps:.0f} fps")
-    print(f"injected 3D noise     : ~4.0 mm per axis")
+    print("injected 3D noise     : ~4.0 mm per axis")
     print(f"raw    mean 3D error  : {np.mean(raw_err[keep]):.2f} mm")
     print(f"smooth mean 3D error  : {np.mean(sm_err[keep]):.2f} mm")
     print(f"noise reduction       : "
           f"{100 * (1 - np.mean(sm_err[keep]) / np.mean(raw_err[keep])):.0f}%")
-    print(f"\nDuring the 6-frame dropout (frames 70-75) there is NO measurement,")
-    print(f"so the filter coasts on predicted velocity and keeps outputting a")
-    print(f"position (max error there {np.nanmax(sm_err[70:76]):.1f} mm) — the")
-    print(f"point is there is no gap/hole in the 3D stream for Unity to trip on.")
-    print("\nTune process_var UP for snappier tracking, DOWN for more smoothing.")
+    print(f"max error during dropout: {np.nanmax(sm_err[70:76]):.1f} mm")
 
 
 if __name__ == "__main__":

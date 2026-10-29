@@ -133,7 +133,7 @@ public class SMPLXPoseDriver : MonoBehaviour
     Vector3 _baseScale = Vector3.one;
     bool _scaleApplied;
 
-    /// Point the driver at a different SMPL-X rig at runtime and re-measure everything that was measured from the old one.
+    /// Switch the driver to a different SMPL-X rig at runtime.
     public void SwitchAvatar(Transform root)
     {
         if (root == null || root == avatarRoot) return;
@@ -167,7 +167,7 @@ public class SMPLXPoseDriver : MonoBehaviour
         CaptureRestPose();
     }
 
-    /// Right-click the component > Reset To Working Defaults.
+    /// Restores the tuned default settings.
     [ContextMenu("Reset To Working Defaults")]
     public void ResetToWorkingDefaults()
     {
@@ -516,7 +516,7 @@ public class SMPLXPoseDriver : MonoBehaviour
         }
     }
 
-    /// A joint that was not reconstructed this frame arrives as JSON null.
+    /// Reads one joint, which is null when it was not reconstructed.
     static bool TryJoint(JSONNode j, int i, out Vector3 p)
     {
         p = Vector3.zero;

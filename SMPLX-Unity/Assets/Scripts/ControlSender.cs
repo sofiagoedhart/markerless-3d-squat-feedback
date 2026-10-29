@@ -40,7 +40,7 @@ public class ControlSender : MonoBehaviour
     /// Tells Python the athlete pressed Start.
     public void SendStart() => Raw("{\"cmd\":\"start\"}");
 
-    /// Tells Python the set is OVER.
+    /// Tells Python the set has ended.
     public void SendEndSet() => Raw("{\"cmd\":\"endset\"}");
 
     /// Tells Python to start the pre-calibration countdown (Enter on the setup skeleton screen).

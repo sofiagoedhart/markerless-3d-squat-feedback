@@ -13,11 +13,11 @@ public class PoseUdpReceiver : MonoBehaviour
     public float staleAfter = 1.0f;
 
     public JSONNode Latest { get; private set; }
-    /// The last completed rep, LATCHED.
+    /// The last completed rep.
     public JSONNode LastRep { get; private set; }
     public int RepSequence { get; private set; }
 
-    /// Every completed rep of the CURRENT set, in order.
+    /// Every completed rep of the current set, in order.
     public List<JSONNode> SetReps { get; } = new List<JSONNode>();
 
     /// Forget the current set's reps and start collecting again.

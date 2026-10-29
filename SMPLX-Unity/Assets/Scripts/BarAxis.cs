@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-/// The seconds axis under the timing bars: one tick per whole second up to the bar's full scale, so a bar can be read without its value label.
+/// Seconds axis under the timing bars, with one tick per second.
 public static class BarAxis
 {
     public static void Build(VisualElement axis, float scaleS)

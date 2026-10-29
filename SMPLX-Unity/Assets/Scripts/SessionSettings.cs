@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class SessionSettings
 {
-    /// Raised whenever anything changes, so the control channel can tell Python and every open screen can re-read what it needs.
+    /// Raised whenever a setting changes.
     public static event Action Changed;
 
     const string K_TARGET = "sk.depthTarget";
@@ -23,7 +23,7 @@ public static class SessionSettings
     /// Which character is displayed.
     public enum Avatar { Female = 1, Male = 2 }
 
-    /// What the live screen shows for depth; Off is ShowDepthMargin switched off, never a stored style.
+    /// Live depth display options.
     public enum LiveDepth { Bar = 1, Trajectory = 2, Off = 3 }
 
     static string _target;
@@ -76,7 +76,7 @@ public static class SessionSettings
         }
     }
 
-    /// Reports 1 while reviewing every rep — see rule 3 at the top.
+    /// The repetition target, which is 1 while each rep is reviewed.
     public static int RepTarget
     {
         get { Load(); return _review == Review.PerRep ? 1 : _reps; }
@@ -130,7 +130,6 @@ public static class SessionSettings
         }
     }
 
-    /// Kept so ScreenFlowController and anything else reading it are unchanged.
     public static bool ReviewEachRep => ReviewMode == Review.PerRep;
     public static bool ReviewEachSet => ReviewMode == Review.PerSet;
 
@@ -140,7 +139,7 @@ public static class SessionSettings
         set { Load(); if (value == _numbers) return; _numbers = value; Save(K_NUMS, value ? 1 : 0); }
     }
 
-    /// There is no "live cues off" any more (28 Aug).
+    /// Whether the live screen shows depth.
     public static bool ShowDepthMargin
     {
         get { Load(); return _depth; }

@@ -68,7 +68,7 @@ public class FeedbackUIController : MonoBehaviour
         _chart.Reset();
     }
 
-    /// Gives the camera the top of the screen and the chart the bottom, or the camera the whole screen.
+    /// Splits the screen between the avatar and the depth chart.
     void ApplySplit(bool on)
     {
         var cam = splitCamera != null ? splitCamera : Camera.main;

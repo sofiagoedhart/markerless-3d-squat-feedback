@@ -5,7 +5,7 @@ public class ScreenFlowController : MonoBehaviour
 {
     public enum Screen { Setup, Live, PostRep, PostSet }
 
-    /// The setup screen has two halves.
+    /// The stages of the setup screen.
     public enum SetupPhase { Choosing, Briefing, Checking }
 
     [Header("Wiring")]
@@ -45,15 +45,15 @@ public class ScreenFlowController : MonoBehaviour
 
     public Screen Current { get; private set; } = Screen.Setup;
     public SetupPhase Phase { get; private set; } = SetupPhase.Choosing;
-    /// 0..1, how far through the start-hold we are — the setup screen draws this.
+    /// Progress through the stance hold, from 0 to 1.
     public float HoldProgress { get; private set; }
-    /// True for a few seconds after a hold ended without the stance references (knee gap, femur) and was restarted.
+    /// True briefly after a stance hold restarts because references were missing.
     public bool ReferencesTimedOut => Time.time < _refsFailedUntil;
-    /// How many sets have been COMPLETED this session: 0 before the first one finishes, 1 while its summary is on screen, and so on.
+    /// Number of sets completed this session.
     public int SetIndex { get; private set; }
 
     int _repSeen = -1;
-    /// Index into receiver.SetReps while the athlete is reading ONE rep opened from the set summary, or -1 when the post-rep card is doing its normal job of showing the rep that just happened.
+    /// Index of the rep opened from the set summary, or -1.
     int _repFromSet = -1;
     int _session = -1;
     bool _pendingRestart;
@@ -87,7 +87,7 @@ public class ScreenFlowController : MonoBehaviour
         Debug.Log("[ScreenFlow] -> " + s);
     }
 
-    /// Called by the setup screen's Start button: opens the squat guide, or the stance check if it is off.
+    /// Called by the Start button; opens the squat guide or the stance check.
     public void StartSet()
     {
         if (Current != Screen.Setup || Phase != SetupPhase.Choosing) return;
@@ -120,7 +120,7 @@ public class ScreenFlowController : MonoBehaviour
         Show(Screen.PostRep);
     }
 
-    /// True while the post-rep card is showing a rep opened from the summary rather than the rep that just happened.
+    /// True while the post-rep card shows a rep opened from the summary.
     public bool ReviewingFromSet => _repFromSet >= 0;
 
     /// Which rep the drill-down is showing, or -1.
@@ -279,7 +279,7 @@ public class ScreenFlowController : MonoBehaviour
         _handoffAt = Time.time + reviewDelay;
     }
 
-    /// open the rep card.
+    /// Opens the rep card.
     void ShowRepCard()
     {
         if (whenDoneGoTo == Screen.Setup)
@@ -302,7 +302,6 @@ public class ScreenFlowController : MonoBehaviour
         if (receiver != null) _repSeen = receiver.RepSequence;
     }
 
-    /// Deliberately does almost nothing.
     void TickPostSet()
     {
         if (receiver != null) _repSeen = receiver.RepSequence;

@@ -56,7 +56,7 @@ public class CarriedBarbell : MonoBehaviour
     bool _carried;
     ScreenFlowController.Screen _lastScreen = ScreenFlowController.Screen.Setup;
 
-    /// True when the bar should be on her back right now.
+    /// True when the bar should be shown on the avatar.
     bool Wanted()
     {
         if (flow == null) return true;

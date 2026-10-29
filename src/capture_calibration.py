@@ -73,7 +73,7 @@ def open_camera(index):
 
 
 def grab_synced(caps):
-    """Capture one frame per camera with MINIMAL inter-camera desync."""
+    """Capture one frame per camera with minimal delay between cameras."""
     for cap in caps.values():
         cap.grab()
     frames = {}

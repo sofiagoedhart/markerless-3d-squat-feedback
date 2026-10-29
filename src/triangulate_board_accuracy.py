@@ -40,7 +40,7 @@ def open_camera(index):
 
 
 def grab_synced(caps):
-    """Capture one frame per camera with MINIMAL inter-camera desync."""
+    """Capture one frame per camera with minimal delay between cameras."""
     for cap in caps.values():
         cap.grab()
     frames = {}
@@ -79,7 +79,7 @@ def load_intrinsics(indices):
 
 
 def undistort_points(pts, K, dist):
-    """Map raw detected pixels to where an IDEAL PINHOLE camera with the same K would have seen them, so they are consistent with P = K[R|t]."""
+    """Undistort detected pixels to ideal pinhole pixels with the same K."""
     p = np.asarray(pts, dtype=np.float64).reshape(-1, 1, 2)
     return cv2.undistortPoints(p, K, dist, P=K).reshape(-1, 2)
 
@@ -100,7 +100,7 @@ def corner_spacing(corners, checkerboard=CHECKERBOARD):
 
 
 def refine_corners(gray, corners, checkerboard=CHECKERBOARD):
-    """CornerSubPix with a search window sized to the board's ON-SCREEN scale."""
+    """Refine corners with a search window sized to the board's on-screen scale."""
     half = int(max(2, min(11, corner_spacing(corners, checkerboard) / 3.0)))
     return cv2.cornerSubPix(gray, corners, (half, half), (-1, -1), SUBPIX)
 
@@ -128,7 +128,7 @@ def rig_centre(indices):
 
 
 def oriented_spacings(pts3d, centre):
-    """Every adjacent-corner spacing, tagged with how much it points ALONG the viewing direction (depth) versus ACROSS it (lateral)."""
+    """Adjacent-corner spacings, tagged by how much each points along the viewing direction."""
     cols, rows = CHECKERBOARD
     out = []
 
@@ -190,7 +190,7 @@ def spacing_errors(pts3d):
 
 
 def span_errors(pts3d):
-    """Full-width and full-height spans — sensitive to overall scale."""
+    """Full-width and full-height board spans."""
     cols, rows = CHECKERBOARD
     errs = []
     known_w = (cols - 1) * SQUARE_W_MM
@@ -207,7 +207,7 @@ def span_errors(pts3d):
 
 
 def orientation_report(oriented):
-    """Split the spacing errors by segment orientation -- the fx discriminator."""
+    """Split the spacing errors by segment orientation."""
     if not oriented:
         return ["orientation split: no samples"]
     e = np.array([o[0] for o in oriented])
@@ -242,7 +242,7 @@ def orientation_report(oriented):
 
 
 def summarise(name, errs):
-    """Report BIAS and SCATTER separately -- they have different causes and different fixes: bias (signed mean) = systematic geometry/scale error."""
+    """Report bias (signed mean) and scatter separately."""
     if not errs:
         return f"{name}: no samples"
     e = np.array(errs, dtype=float)

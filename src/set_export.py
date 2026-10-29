@@ -43,7 +43,7 @@ def thresholds_in_force():
 def set_record(reports, *, session_id, set_index, target, label=None, engine=None,
                theta0_deg=None, h0_mm=None, calibration=None, driver="terminal",
                notes="", options=None):
-    """One set as a JSON-safe dict: what was measured, and what it was measured against."""
+    """One set and its references as a JSON-safe dict."""
     baselines = {"theta0_deg": theta0_deg, "h0_mm": h0_mm}
     if engine is not None:
         femur = getattr(engine, "femur", None)

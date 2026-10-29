@@ -55,7 +55,7 @@ def set_ids(cam):
 
 
 def pnp_errors(objp, pts_list, K, dist):
-    """Per-view reprojection error via solvePnP — flags blurry/oblique frames."""
+    """Per-view reprojection error via solvePnP, used to find blurry or oblique frames."""
     errs = []
     for pts in pts_list:
         ok, rvec, tvec = cv2.solvePnP(objp, pts, K, dist)

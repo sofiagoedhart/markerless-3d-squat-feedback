@@ -1,5 +1,5 @@
-"""recolour_texture.py — recolour the CLOTHING in an SMPL-X albedo texture."""
-import argparse, os, sys
+"""Recolour the clothing in an SMPL-X albedo texture."""
+import argparse, os
 import numpy as np
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None

@@ -1,4 +1,4 @@
-"""make_mannequin_texture.py — build a FEATURELESS clothed avatar texture."""
+"""Build a featureless clothed avatar texture."""
 import argparse, os
 import numpy as np
 from PIL import Image

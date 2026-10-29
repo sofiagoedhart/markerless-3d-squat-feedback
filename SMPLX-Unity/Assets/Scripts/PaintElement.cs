@@ -9,10 +9,10 @@ public class PaintElement : VisualElement
         public Vector2[] points;
         public Color color = Color.black;
         public float width = 2f;
-        /// Dashed lines are for reference geometry (a level line, a straight hip-to-ankle line) so measured data and drawn-in references never look like the same kind of thing.
+        /// Draws the line dashed, for reference lines.
         public bool dashed = false;
         public float dashPx = 6f, gapPx = 5f;
-        /// Set to shade the area between the line and `fillTo`, for a trace whose distance from a baseline is the reading.
+        /// Shades the area between the line and `fillTo`.
         public Color? fillColor = null;
         public float fillTo = 1f;
     }

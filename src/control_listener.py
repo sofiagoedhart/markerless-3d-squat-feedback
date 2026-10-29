@@ -1,4 +1,4 @@
-"""Receive setting changes sent from Unity; the one channel that runs Unity to Python."""
+"""Receive settings and commands sent from Unity."""
 from __future__ import annotations
 import json
 import socket
@@ -89,7 +89,7 @@ class ControlListener:
             return c
 
     def take_end(self) -> bool:
-        """True once per set that Unity closed, so the recording closes on the same repetition the summary was drawn from."""
+        """True once for each set that Unity has ended."""
         with self._lock:
             e, self._end = self._end, False
             return e

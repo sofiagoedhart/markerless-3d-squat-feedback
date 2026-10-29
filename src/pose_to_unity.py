@@ -53,7 +53,7 @@ MIRROR_IDX = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15]
 
 
 def mirror_kp(kp, frame: M.BodyFrame, origin=None):
-    """Reflect a skeleton in the sagittal plane through `origin` and swap left for right, so the avatar reads as a gym mirror."""
+    """Mirror a skeleton through `origin` and swap left and right joints."""
     kp = np.asarray(kp, float)
     lat = np.asarray(frame.lateral, float)
     o = (np.asarray(origin, float) if origin is not None
@@ -86,7 +86,7 @@ def to_unity_vec(v, frame: M.BodyFrame):
 
 
 def setup_frame(kp, up=None):
-    """A provisional body frame for the setup view: the rig vertical for up (or the athlete's own ankle-to-shoulder axis if there is none) and her shoulder line for lateral."""
+    """A provisional body frame for the setup view, before standing calibration."""
     kp = np.asarray(kp, float)
     mank = M._mid(kp[M.L_ANK], kp[M.R_ANK])
     msho = M._mid(kp[M.L_SHO], kp[M.R_SHO])
@@ -174,7 +174,7 @@ def limb_lengths(standing_skeletons) -> dict:
 
 
 def segment_axes(kp, frame: M.BodyFrame, limb_mm=None, lo=0.60, hi=1.60) -> dict:
-    """(17,3) world-mm skeleton -> {segment: (long, ref)} in UNITY axes."""
+    """Segment axes in Unity coordinates from a (17, 3) skeleton in world mm."""
     kp = np.asarray(kp, float)
     U = lambda v: to_unity_vec(v, frame) if v is not None else None
 
@@ -236,7 +236,7 @@ def segment_axes(kp, frame: M.BodyFrame, limb_mm=None, lo=0.60, hi=1.60) -> dict
 
 
 class PoseStreamer:
-    """Serialises pose + assessment state into one UDP JSON datagram per frame."""
+    """Send pose and assessment state to Unity as one UDP JSON packet per cycle."""
 
     def __init__(self, frame: M.BodyFrame = None, host="127.0.0.1", port=5006,
                  origin=None, send_joints=True, target="parallel",
@@ -256,10 +256,9 @@ class PoseStreamer:
         self.session = 0
 
     def stance(self, kp) -> dict:
-        """The set-up check, evaluated live on every frame, unlike the engine's one-off stance-width measurement."""
+        """Stance-width check for the setup screen."""
         sw = M.stance_width_ratio(kp, self.frame, shoulder_mm=self.shoulder_mm)
         cls, cue = M.classify_stance_width(sw)
-        from metrics import _ok
         return {"ratio": (round(float(sw), 2) if np.isfinite(sw) else None),
                 "class": cls, "cue": cue,
                 "lo": STANCE_NARROW, "hi": STANCE_WIDE}
@@ -277,7 +276,7 @@ class PoseStreamer:
 
     def calibrate(self, frame, origin=None, subject_mm=None, shoulder_mm=None,
                   limb_mm=None):
-        """Fill in what only the standing calibration can supply, so one streamer can serve the setup view and then the live session."""
+        """Add the references from standing calibration."""
         self.frame = frame
         self.origin = None if origin is None else np.asarray(origin, float)
         self.subject_mm = None if subject_mm is None else float(subject_mm)
@@ -286,7 +285,7 @@ class PoseStreamer:
 
     @staticmethod
     def _cam_counts(conf, cams, thresh=0.5):
-        """How many joints each camera can see, so the setup screen can show whether the athlete is framed without any video being streamed."""
+        """Number of joints each camera can see."""
         if conf is None or cams is None:
             return None
         c = np.asarray(conf, float)
@@ -353,7 +352,7 @@ class PoseStreamer:
 
     @staticmethod
     def subject_hip_ankle(standing_skeletons, frame: M.BodyFrame = None):
-        """The subject's mid-hip to mid-ankle distance in mm (the leg, not the whole body), median over the standing frames."""
+        """Median mid-hip to mid-ankle distance over the standing frames, in mm."""
         d = []
         for kp in standing_skeletons:
             kp = np.asarray(kp, float)

@@ -156,7 +156,7 @@ public class SetupUIController : MonoBehaviour
         if (_guideNote != null) _guideNote.text = SquatGuideElement.DepthCue(t);
     }
 
-    /// One chip per entry in SessionSettings.Targets — generated, not authored, so adding a variation later means touching the settings list only.
+    /// Builds one chip per depth target in SessionSettings.Targets.
     void BuildChips()
     {
         if (_chips == null) return;

@@ -50,7 +50,7 @@ class BodyFrame:
 
 
 def calibrate_body_frame(standing_skeletons, fixed_up=None) -> BodyFrame:
-    """Build a BodyFrame from several frames of a still, upright stand: up is `fixed_up` or mid-ankle to mid-shoulder, lateral is right hip to left hip orthogonalised to up, and forward is up x lateral."""
+    """Build a BodyFrame from frames of a still, upright stand."""
     ups, lats = [], []
     for kp in standing_skeletons:
         kp = np.asarray(kp, float)
@@ -164,7 +164,7 @@ def squat_dominance(trunk_tibia_deg, centre=-16.25, band=3.86) -> str:
 
 
 def knee_medial_deviation(kp, frame: BodyFrame, side: str) -> float:
-    """Signed medial offset of one knee from its hip-ankle line, in mm, measured in the frontal plane as a perpendicular distance."""
+    """Signed medial offset of one knee from its hip-ankle line in the frontal plane, in mm."""
     idx = {"L": (L_HIP, L_KNE, L_ANK), "R": (R_HIP, R_KNE, R_ANK)}[side]
     H, K, A = kp[idx[0]], kp[idx[1]], kp[idx[2]]
     if not _ok(H, K, A):

@@ -13,7 +13,6 @@ V_DEADBAND = 40.0
 V_RISE = 60.0
 RISE_FRAMES = 2
 DWELL_BAND = 40.0
-VEL_EMA = 0.5
 
 PARALLEL_BAND = 54.95
 DEPTH_OFFSET = 95.55
@@ -74,7 +73,7 @@ DEPTH_CUES = {
 
 
 def depth_scale(femur_mm=None) -> float:
-    """How far to stretch the depth thresholds for this athlete's thigh, or 1.0 when the femur is unknown or implausible."""
+    """Depth threshold scale for this athlete's femur length, or 1.0 when it is unknown."""
     if femur_mm is None or not np.isfinite(femur_mm):
         return 1.0
     f = float(femur_mm)
@@ -209,7 +208,6 @@ class SquatRepEngine:
         self._base_n = 0
         self._t_prev = None
         self._h_prev = None
-        self._v_ema = 0.0
         self.stance_width = np.nan
         self.stance_note = ""
         self.shoulder_mm = shoulder_mm
@@ -241,7 +239,7 @@ class SquatRepEngine:
         self._reset_rep()
 
     def seed_stance(self, kp, t):
-        """Feed one standing frame to the knee-gap baseline before the set starts, while the athlete is already in the stance she will squat in."""
+        """Add one standing frame to the knee-gap baseline before the set starts."""
         self._gap_push(kp, t)
 
     def _gap_push(self, kp, t):
@@ -276,7 +274,7 @@ class SquatRepEngine:
             self._gap_refresh()
 
     def _gap_refresh(self):
-        """Recompute the baseline from the trailing window of the buffer, so it reflects the stance she is standing in right now."""
+        """Recompute the knee-gap baseline from the most recent standing frames."""
         if not self._gap_buf:
             return
         t_end = self._gap_buf[-1][0]
@@ -342,7 +340,7 @@ class SquatRepEngine:
                            f"(depth thresholds x{med / REF_FEMUR_MM:.2f})")
 
     def references_ready(self) -> bool:
-        """True once the references a fault depends on exist for this stance: the knee gap (valgus) and the femur (depth scale)."""
+        """True once the knee gap and femur references have been measured."""
         gap_ok = self._gap_supplied or (np.isfinite(self._gap0)
                                         and len(self._gap_buf) >= GAP_MIN_FRAMES)
         return bool(gap_ok and np.isfinite(self._femur0))
@@ -361,7 +359,7 @@ class SquatRepEngine:
             self._set_stance(stance_kp)
 
     def _set_stance(self, kp):
-        """Measure and classify stance width from a standing pose, which also supplies the standing knee gap when none was passed in."""
+        """Measure and classify stance width from a standing pose."""
         self._stance_kp = np.asarray(kp, float)
         if not np.isfinite(self._femur0):
             fm = _femur_len(self._stance_kp)
@@ -395,7 +393,7 @@ class SquatRepEngine:
         self._v_last_t = None
 
     def _velocity(self, h, t, pelvis_vel):
-        """Return pelvis vertical velocity, smoothed by an exponential moving average."""
+        """Pelvis vertical velocity in mm/s from the change in pelvis height."""
         if pelvis_vel is not None and np.isfinite(pelvis_vel):
             return float(pelvis_vel)
         if self._t_prev is None or not np.isfinite(h) or not np.isfinite(self._h_prev):
@@ -403,8 +401,7 @@ class SquatRepEngine:
         else:
             dt = t - self._t_prev
             v = (h - self._h_prev) / dt if dt > 1e-6 else 0.0
-        self._v_ema = VEL_EMA * v + (1 - VEL_EMA) * self._v_ema
-        return self._v_ema
+        return v
 
     def _valid_frame(self, kp) -> bool:
         """True when every joint the measurements need is present and finite."""
@@ -551,7 +548,7 @@ class SquatRepEngine:
                            abandoned=abandoned)
 
     def _bottom_median(self, col):
-        """Median of one trajectory column over the bottom window: assessed frames within DWELL_BAND of the lowest assessed pelvis position."""
+        """Median of one trajectory column over the bottom of the repetition."""
         hs = [row[1] for row in self._traj if np.isfinite(row[1])]
         if not hs:
             return np.nan
@@ -562,7 +559,7 @@ class SquatRepEngine:
         return float(np.median(vals)) if vals else np.nan
 
     def _traj_mean(self, col):
-        """Mean of one trajectory column over the flexed portion of the repetition, for measurements that describe the movement as a whole."""
+        """Mean of one trajectory column over the flexed part of the repetition."""
         vals = [row[col] for row in self._traj if np.isfinite(row[col])]
         return float(np.mean(vals)) if vals else np.nan
 

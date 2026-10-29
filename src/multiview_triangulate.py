@@ -42,10 +42,8 @@ def build_rig(cameras_krt):
     return rig
 
 
-def triangulate_joint(rig, points_2d, confidences,
-                      conf_thresh=0.5, min_views=2,
-                      reject_outliers=True, max_reproj_px=15.0):
-    """Triangulate a SINGLE joint from whichever cameras see it well enough."""
+def triangulate_joint(rig, points_2d, confidences, conf_thresh=0.5, min_views=2):
+    """Triangulate one joint from the cameras whose confidence passes the threshold."""
     good = []
     for i, (pt, c) in enumerate(zip(points_2d, confidences)):
         if pt is None or c < conf_thresh:
@@ -60,25 +58,7 @@ def triangulate_joint(rig, points_2d, confidences,
 
     Ps = [rig[i].P for i in good]
     pts = [np.asarray(points_2d[i], dtype=float) for i in good]
-
-    X = triangulate_point_dlt(Ps, pts)
-
-    if reject_outliers and len(good) >= 3:
-        reproj = [np.linalg.norm(project(rig[i].P, X) - np.asarray(points_2d[i]))
-                  for i in good]
-        worst = int(np.argmax(reproj))
-        if reproj[worst] > max_reproj_px:
-            trimmed = [k for k in range(len(good)) if k != worst]
-            if len(trimmed) >= max(2, min_views):
-                Ps2 = [Ps[k] for k in trimmed]
-                pts2 = [pts[k] for k in trimmed]
-                X2 = triangulate_point_dlt(Ps2, pts2)
-                new_reproj = np.mean([np.linalg.norm(project(Ps2[k], X2) - pts2[k])
-                                      for k in range(len(trimmed))])
-                if new_reproj < np.mean(reproj):
-                    return X2, [good[k] for k in trimmed]
-
-    return X, good
+    return triangulate_point_dlt(Ps, pts), good
 
 
 def undistort_view(pts, cam):
@@ -97,8 +77,7 @@ def undistort_view(pts, cam):
 
 
 def triangulate_skeleton(rig, points_2d, confidences,
-                         conf_thresh=0.5, min_views=2, reject_outliers=True,
-                         undistort=True):
+                         conf_thresh=0.5, min_views=2, undistort=True):
     """Triangulate all 17 joints for one frame from `points_2d`, shape (n_cam, 17, 2) in pixels, with matching (n_cam, 17) confidences."""
     points_2d = np.asarray(points_2d, dtype=float)
     if undistort:
@@ -116,7 +95,6 @@ def triangulate_skeleton(rig, points_2d, confidences,
         X, used = triangulate_joint(
             rig, pts_j, conf_j,
             conf_thresh=conf_thresh, min_views=min_views,
-            reject_outliers=reject_outliers,
         )
         if X is not None:
             joints_3d[j] = X

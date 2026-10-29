@@ -11,11 +11,6 @@ from kalman_smoother import SkeletonKalman
 from one_euro import SkeletonOneEuro
 
 
-class PassThrough:
-    """--filter none."""
-
-    def update(self, joints_3d, dt=None):
-        return joints_3d
 import metrics as M
 from rep_engine import (SquatRepEngine, DOMINANCE_CENTRE, DOMINANCE_BAND,
                         UPRIGHT_DEG, GAP_MIN_FRAMES, REP_ABANDON_S,
@@ -23,6 +18,13 @@ from rep_engine import (SquatRepEngine, DOMINANCE_CENTRE, DOMINANCE_BAND,
 from session_io import SessionRecorder, meta_from_body_frame
 from set_video import SetVideoWriter
 from set_export import write_set
+
+
+class PassThrough:
+    """Unfiltered output, used with --filter none."""
+
+    def update(self, joints_3d, dt=None):
+        return joints_3d
 
 
 def refresh_report(dirpath, quiet=False):
@@ -79,7 +81,7 @@ class StageTimer:
         self._stage = {}
 
     def new_set(self):
-        """A set boundary drops the marks AND the previous timestamp, so the wait for Unity's Start is not charged to the set's first frame."""
+        """Clear the stage marks and previous timestamp at the start of a set."""
         self._stage = {}
         self._prev = None
 
@@ -155,7 +157,7 @@ TIMER = None
 
 
 def pick_subject(res, expected_xy=None):
-    """Pick the subject in one view, preferring the box nearest `expected_xy` so that every camera picks the same person."""
+    """Pick the subject in one view, preferring the box nearest `expected_xy`."""
     kp = res.keypoints
     if kp is None or kp.xy is None or kp.xy.shape[0] == 0:
         return None, None
@@ -305,7 +307,7 @@ _win = {}
 
 
 def _show_win(win, img, pos, width):
-    """One resizable, movable window; resize/move applied AFTER first imshow."""
+    """Show a frame in a resizable window."""
     if win not in _win:
         cv2.namedWindow(win, cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
         try:
@@ -349,7 +351,7 @@ def show(frames, valid, indices, rig, sm3d, tile_w=640, banner=None):
 
 
 def metrics_line(kp, frame, st):
-    """A compact line with every metric — for working through each one."""
+    """One status line with every metric."""
     kL, kR = M.knee_angles(kp)
     d = M.depth_margin(kp, frame)
     tr = M.trunk_incline(kp, frame, sagittal=True)
@@ -489,7 +491,7 @@ def _send_setup(stream, kp, t, countdown=None, cams=None, refs_ready=None):
 
 def wait_for_start(ctl, model, caps, order, indices, rig, kalman, device, prev,
                    tw, no_video, stream, eng=None):
-    """Idle until the athlete presses Start in Unity, streaming the whole time and feeding the engine's knee-gap baseline."""
+    """Stream the setup view until Start is pressed in Unity."""
     said = False
     while True:
         if ctl.take_start():

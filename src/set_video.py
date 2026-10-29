@@ -34,7 +34,7 @@ class SetVideoWriter:
         return os.path.join(self.dir, f"{self.stem}_cam{cam}.avi")
 
     def _run(self, cam):
-        """Consumer thread: opens the writer lazily so the frame size comes from the real frames rather than an assumption."""
+        """Write queued frames to video in a background thread."""
         w = None
         while True:
             item = self._q[cam].get()
@@ -94,7 +94,7 @@ class SetVideoWriter:
 
     @classmethod
     def close_all(cls):
-        """Finalise anything still open -- an unreleased AVI has no index and may not play back."""
+        """Close any open video writers."""
         for v in list(cls._open):
             try:
                 v.close()

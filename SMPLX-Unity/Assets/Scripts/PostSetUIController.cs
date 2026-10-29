@@ -47,7 +47,7 @@ public class PostSetUIController : MonoBehaviour
         _drawnCount = -1;
     }
 
-    /// Re-binds whenever the visual tree is replaced, which UI Toolkit does on every script reload, UXML save and screen enable.
+    /// Re-binds whenever the visual tree is replaced.
     bool Bind()
     {
         var root = _doc != null ? _doc.rootVisualElement : null;
@@ -454,7 +454,7 @@ public class PostSetUIController : MonoBehaviour
         }
     }
 
-    /// One measurement across the set: gridlines, an optional target band and threshold line, the series, and a dot per rep coloured by its verdict.
+    /// Chart of one measurement across the set, with a dot per rep.
     void Plot(VisualElement plot, VisualElement yTicks, VisualElement xTicks,
               float[] vals, string[] cls, string[] repNos, List<float> extra,
               bool includeZero, bool symmetric,
@@ -555,7 +555,7 @@ public class PostSetUIController : MonoBehaviour
         return 1f - Mathf.Clamp01((v - lo) / (hi - lo));
     }
 
-    /// Round axis limits out to a readable step, so the ticks are 0/100/200/300 rather than whatever the data happened to reach.
+    /// Round axis limits out to a readable step.
     static void Bounds(List<float> vals, bool includeZero, bool symmetric,
                        out float lo, out float hi, out int ticks)
     {
@@ -606,7 +606,7 @@ public class PostSetUIController : MonoBehaviour
         return p;
     }
 
-    /// Copied verbatim from PostRepUIController.DrawSymmetryIcon.
+    /// Draws the knee-symmetry icon.
     void DrawSymIcon()
     {
         var p = AddPaint(_symIcon);
@@ -624,7 +624,7 @@ public class PostSetUIController : MonoBehaviour
            new Vector2(0.80f, 0.46f), new Vector2(0.80f, 0.62f));
     }
 
-    /// Copied verbatim from PostRepUIController.DrawShoulderIcon - see above.
+    /// Draws the shoulder icon.
     void DrawShIcon()
     {
         var p = AddPaint(_shIcon);
@@ -681,7 +681,7 @@ public class PostSetUIController : MonoBehaviour
         if (e != null) e.style.display = DisplayStyle.None;
     }
 
-    /// A line that STATES a measurement instead of judging it.
+    /// A sentence stating a measurement.
     static void Report(Label l, string text)
     {
         if (l == null) return;

@@ -417,7 +417,7 @@ public class PostRepUIController : MonoBehaviour
         }
     }
 
-    /// Two legs seen from the front: hip -> knee -> ankle, with the straight hip-to-ankle line dashed behind each.
+    /// Front view of both legs with a dashed hip-to-ankle line.
 
     static readonly Color32 IconGrey = new Color32(0x75, 0x80, 0x8c, 255);
     static readonly Color32 IconBlue = new Color32(0x7f, 0xb4, 0xf2, 255);
@@ -467,7 +467,7 @@ public class PostRepUIController : MonoBehaviour
         Line(p, c, 2.5f, false, to - d * 0.07f + n * 0.05f, to, to - d * 0.07f - n * 0.05f);
     }
 
-    /// The same two legs, but one knee bent further than the other - which is what the knee-angle difference is.
+    /// Front view of both legs with one knee bent further.
     void DrawSymmetryIcon()
     {
         if (_symIconPaint == null) return;
@@ -500,7 +500,7 @@ public class PostRepUIController : MonoBehaviour
         Line(_shIconPaint, IconGap, 2.5f, false, new Vector2(0.78f, 0.51f), shR);
     }
 
-    /// The squat pictogram: seen from the front, bar across the shoulders, elbows up under it, knees bent and tracking out over the toes.
+    /// Front-view squat pictogram.
     void DrawStyleIcon()
     {
         if (_styleIconPaint == null) return;
@@ -578,7 +578,7 @@ public class PostRepUIController : MonoBehaviour
         });
     }
 
-    /// Which phase a moment in the repetition fell in, so the cue can say "during the bottom" instead of quoting a raw timestamp.
+    /// The phase a moment in the repetition fell in.
     string PhaseAt(float t)
     {
         if (_repSeconds <= 0f) return PostRepCopy.PhaseDescent;
@@ -588,7 +588,7 @@ public class PostRepUIController : MonoBehaviour
         return PostRepCopy.PhaseAscent;
     }
 
-    /// The two dashed dividers every chart carries, drawn once so descent / bottom / ascent is explained here instead of on each graph.
+    /// Legend for the phase dividers on the charts.
     void DrawPhaseKey()
     {
         if (_keyPaint == null) return;
@@ -630,7 +630,7 @@ public class PostRepUIController : MonoBehaviour
 
     static bool HasLine(float f) => f > 0.02f && f < 0.98f;
 
-    /// `floorAbs` is the SMALLEST half-range the axis may use, so an almost perfectly even rep is not blown up to fill the plot; anything larger comes from the rep's own values.
+    /// Symmetric axis range around zero, at least `floorAbs` either side.
     void DrawTraj(PaintElement paint, VisualElement ticks, JSONNode traj,
                   float floorAbs, float refValue,
                   bool absolute = false, int series = 1, bool negate = false,
@@ -708,7 +708,7 @@ public class PostRepUIController : MonoBehaviour
     static float YN(float v, float lo, float hi) =>
         1f - Mathf.Clamp01(Mathf.InverseLerp(lo, hi, v));
 
-    /// The target band of a rep: its own first, the live stream only as a fallback for reps recorded before the report carried one.
+    /// The depth target band for a rep.
     JSONNode BandOf(JSONNode rep)
     {
         JSONNode b = rep != null ? rep["depth_band"] : null;
@@ -730,7 +730,7 @@ public class PostRepUIController : MonoBehaviour
         return 10f * mag;
     }
 
-    /// A rounded range covering `vals` with 3-6 gridlines, plus a little headroom so the trace never runs along the frame.
+    /// A rounded axis range covering `vals` with 3 to 6 gridlines.
     static void Bounds(List<float> vals, bool symmetric,
                        out float lo, out float hi, out int ticks)
     {
@@ -767,7 +767,7 @@ public class PostRepUIController : MonoBehaviour
         if (hi - lo < 1e-6f) hi = lo + 1f;
     }
 
-    /// One gridline per tick and that tick's number in the gutter, both from the SAME lo/hi the trace is drawn against, so they can never disagree.
+    /// Draws one gridline and label per tick.
     void Axis(VisualElement gutter, PaintElement paint, float lo, float hi, int ticks)
     {
         gutter?.Clear();
@@ -793,7 +793,7 @@ public class PostRepUIController : MonoBehaviour
         if (bar != null) bar.style.width = Length.Percent(Mathf.Clamp01(f) * 100f);
     }
 
-    /// A line that STATES a measurement instead of judging it.
+    /// A sentence stating a measurement.
     static void Report(Label l, string text)
     {
         if (l == null) return;

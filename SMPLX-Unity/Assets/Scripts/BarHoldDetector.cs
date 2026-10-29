@@ -43,7 +43,7 @@ public class BarHoldDetector : MonoBehaviour
         if (receiver == null) receiver = FindAnyObjectByType<PoseUdpReceiver>();
     }
 
-    /// Drop the hold at once, e.g.
+    /// Drops the hold immediately.
     public void ResetHold() { Holding = false; _inFor = 0f; _outFor = 0f; _unseenFor = 0f; }
 
     void Update()
@@ -91,7 +91,7 @@ public class BarHoldDetector : MonoBehaviour
         if (Holding && _unseenFor >= unseenDropSeconds) { Holding = false; _outFor = 0f; }
     }
 
-    /// Interior elbow angle, how far the wrist sits below the shoulder, and whether the elbow is below the wrist.
+    /// Elbow angle and wrist and elbow positions for one arm.
     static bool Arm(JSONNode j, int s, int e, int w, out float deg, out float drop, out bool down)
     {
         deg = float.NaN; drop = float.NaN; down = false;

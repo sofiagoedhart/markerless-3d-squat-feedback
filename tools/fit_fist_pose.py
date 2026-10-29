@@ -1,4 +1,4 @@
-"""Fits the fist pose used by HandFist.cs on the SMPL-X template hand skeleton and prints the C# arrays."""
+"""Fit the fist pose used by HandFist.cs and print the C# arrays."""
 import json
 from pathlib import Path
 import numpy as np
@@ -14,7 +14,7 @@ BASE = {f: np.array([[0, 0, -np.radians(a)] for a in c]) for f, c in CURL_DEG.it
 
 
 def fk(J, pose):
-    """Forward kinematics of the left hand; returns wrist, joints 1-3 and an extrapolated tip per finger (m)."""
+    """Forward kinematics of the left hand, returning joint and fingertip positions in m."""
     out = {}
     for f, s in LEFT.items():
         rest = [J[s], J[s + 1], J[s + 2], J[s + 2] + 0.9 * (J[s + 2] - J[s + 1])]
@@ -27,7 +27,7 @@ def fk(J, pose):
 
 
 def thumb_pose(x, J):
-    """Thumb CMC is free (3 DOF); MCP and IP flex about one axis toward the palm."""
+    """Thumb joint rotations for the fist pose."""
     v = J[39] - J[38]
     a = np.cross(v / np.linalg.norm(v), np.array([0, -1, -1]) / np.sqrt(2))
     a /= np.linalg.norm(a)

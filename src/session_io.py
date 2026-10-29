@@ -109,7 +109,7 @@ def load_session_arrays(path):
 
 
 def body_frame_from_meta(meta):
-    """Rebuild the calibrated BodyFrame stored alongside a recording, so a replay uses the SAME frame the live session used."""
+    """Rebuild the BodyFrame stored with a recording."""
     try:
         f = meta["body_frame"]
         return M.BodyFrame(up=np.asarray(f["up"], float),
